@@ -97,5 +97,5 @@ sigma = sigma-0 + sigma-1 * wavelength + sigma-2 * wavelength^2
 ```
 then we need to specify the following: 
 ```python
-h3p.set(sigma = 3, sigma-0 = 0.1, sigma-1 = 0.01, sigma-2 = 0.001) 
+h3p.set(nsigma = 3, sigma-0 = 0.1, sigma-1 = 0.01, sigma-2 = 0.001) 
 ```
