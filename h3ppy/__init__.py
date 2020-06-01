@@ -8,7 +8,7 @@ class h3p :
 
         # Provide the opportunity to use another line list
         if (line_list_file == '') :
-            self.line_list_file = os.path.join(os.path.dirname(__file__), '../data/h3p_line_list_neale_1996_subset.txt')
+            self.line_list_file = os.path.join(os.path.dirname(__file__), '/data/h3p_line_list_neale_1996_subset.txt')
         else : self.line_list_file = line_list_file
         
         # Configure logging 
