@@ -8,13 +8,6 @@ pip3 install h3ppy
 ```
 ## Generate a model H<sub>3</sub><sup>+</sup> spectrum 
 
-The shape of a H<sub>3</sub><sup>+</sup> spectrum is determined by a number of parameters 
-
-* `Temperature` - the intensity of the H<sub>3</sub><sup>+</sup> spectral lines are an exponential function of the temperature. Typical ranges for the ionosphere's of the giant planets are 400 (Saturn) to 1500 K (Jupiter).
-* `density` - the column integrated H<sub>3</sub><sup>+</sup> density, this is the number of ions along the line of sight vector.
-* `sigma-0` - spectral line width (sigma)
-* `offset-0` - wavelength offset from the rest wavelength. Doppler shift and wavelength calibration errors can offset the wavelength scale. 
-* `background-0` - A polynomial offset from the zero intensity level of the spectrum
 
 The code below generate an example spectrum: 
 
@@ -79,3 +72,30 @@ Which produces an output in the console like:
 Which is entirely sensible and looks like:
 
 ![Model H3+ spectra](img/example_fit.png)
+
+
+# Input parameters
+
+The `set()`, `model()`, and `fit)(` methods accepts the following inputs:
+
+
+* `wavelength` - the wavelength scale on which to produce the model
+* `data` - the observed H<sub>3</sub><sup>+</sup> spectrum
+* `temperature` - the intensity of the H<sub>3</sub><sup>+</sup> spectral lines are an exponential function of the temperature. Typical ranges for the ionosphere's of the giant planets are 400 (Saturn) to 1500 K (Jupiter).
+* `density` - the column integrated H<sub>3</sub><sup>+</sup> density, this is the number of ions along the line of sight vector.
+* `sigma-n` - the nth polynomial constant of the spectral line width (sigma)
+* `offset-n` - he nth polynomial constant of the wavelength offset from the rest wavelength. Doppler shift and wavelength calibration errors can offset the wavelength scale. 
+* `background-n` - he nth polynomial constant of the displacement from the zero intensity level of the spectrum
+* `nsigma` - the number of polynomial constant used for the sigma.
+* `noffset` - the number of polynomial constant used for the offset.
+* `nbackground` - the number of polynomial constant used for the background.
+
+
+The parameters with `-n` suffix indicates that they are the nth polynomial constant. For example, if we want use the following function to describe the sigma:
+```
+sigma = sigma-0 + sigma-1 * wavelength + sigma-2 * wavelength^2
+```
+then we need to specify the following: 
+```python
+h3p.set(sigma = 3, sigma-0 = 0.1, sigma-1 = 0.01, sigma-2 = 0.001) 
+```
