@@ -10,11 +10,13 @@ pip3 install h3ppy
 
 The shape of a H<sub>3</sub><sup>+</sup> spectrum is determined by a number of parameters 
 
-* Temperature - the intensity of the H<sub>3</sub><sup>+</sup> spectral lines are an exponential function of the temperature. Typical ranges for the ionosphere's of the giant planets are 400 (Saturn) to 1500 K (Jupiter).
-* Column integrated H<sub>3</sub><sup>+</sup> density - this is the number of ions along the line of sight. 
-* Spectral line width (sigma) - how broad the spectral lines?
-* Wavelength offset from the rest wavelength. Doppler shift and wavelength calibration errors can offset the wavelength scale. 
-* Any background emission - could be a constant of polynomial offset from the zero level
+* `Temperature` - the intensity of the H<sub>3</sub><sup>+</sup> spectral lines are an exponential function of the temperature. Typical ranges for the ionosphere's of the giant planets are 400 (Saturn) to 1500 K (Jupiter).
+* `density` - the column integrated H<sub>3</sub><sup>+</sup> density, this is the number of ions along the line of sight vector.
+* `sigma-0` - spectral line width (sigma)
+* `offset-0` - wavelength offset from the rest wavelength. Doppler shift and wavelength calibration errors can offset the wavelength scale. 
+* `background-0` - A polynomial offset from the zero intensity level of the spectrum
+
+The code below generate an example spectrum: 
 
 ```python
 import h3ppy
