@@ -1,0 +1,3 @@
+include setup.py
+recursive-include h3ppy *.py
+recursive-include h3ppy *.txt
