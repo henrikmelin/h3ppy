@@ -48,14 +48,15 @@ pretend_data = model + noise
 h3p.set(density = 5e13, temperature = 1300)
 
 # Fit the spectrum
-fit = h3p.fit(data = pretend_data)
+params_to_fit = ['temperature', 'density']
+fit = h3p.fit(data = pretend_data, params_to_fit = params_to_fit)
 
 # Get the fit variables and associated errors
 vars, errs = h3p.get_results()
 
 plt.plot(wave, pretend_data, label='Pretend data')
 plt.plot(wave, fit, label = '$H_3^+$ spectrum fit')
-plt.legend
+plt.legend()
 plt.savefig('example_fit.png')
 ```
 Which produces an output in the console like:
@@ -84,7 +85,7 @@ The `set()`, `model()`, and `fit)(` methods accepts the following inputs:
 * `temperature` - the intensity of the H<sub>3</sub><sup>+</sup> spectral lines are an exponential function of the temperature. Typical ranges for the ionosphere's of the giant planets are 400 (Saturn) to 1500 K (Jupiter).
 * `density` - the column integrated H<sub>3</sub><sup>+</sup> density, this is the number of ions along the line of sight vector.
 * `sigma-n` - the nth polynomial constant of the spectral line width (sigma)
-* `offset-n` - he nth polynomial constant of the wavelength offset from the rest wavelength. Doppler shift and wavelength calibration errors can offset the wavelength scale. 
+* `offset-n` - the nth polynomial constant of the wavelength offset from the rest wavelength. Doppler shift and wavelength calibration errors can offset the wavelength scale. 
 * `background-n` - he nth polynomial constant of the displacement from the zero intensity level of the spectrum
 * `nsigma` - the number of polynomial constant used for the sigma.
 * `noffset` - the number of polynomial constant used for the offset.
