@@ -116,3 +116,20 @@ The figure below illustrates how the evaluated polynomials for the offset, sigma
 
 ![The parameters of a spectrum](img/spectrum_parameters.png)
 
+
+### Using different H<sub>3</sub><sup>+</sup> line data
+
+If you want to use a different set of line-data you can specify a different file when you create the `h3ppy.h3p()` object. For example: 
+
+```
+H3p = h3ppy.h3p(line_list_file = '/path/to/h3p_line_list_neale_1996_detailed.txt')
+```
+where the `h3p_line_list_neale_1996_detailed.txt` file is available on this GitHub directory, containing a greater number of translation lines. There is also `h3p_line_list_neale_1996_very_detailed.txt` (unzip before use). Obviously using a larger line-list will slow down all aspects of `h3ppy` (sad).
+
+You can also concoct your own line list. The reader expects five columns in this order 
+
+1. Angular momentum quantum number of upper level (J)
+2. Wavenumber of the upper level
+3. Wavenumber of the transition
+4. Einstein A coefficient 
+5. Spin weighting 
