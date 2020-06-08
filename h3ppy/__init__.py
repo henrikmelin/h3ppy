@@ -1,14 +1,14 @@
 import os
 import numpy as np
 import logging
-
+    
 class h3p : 
 
     def __init__(self, line_list_file = '', **kwargs):
 
         # Provide the opportunity to use another line list
         if (line_list_file == '') :
-            self.line_list_file = os.path.join(os.path.dirname(__file__), '/data/h3p_line_list_neale_1996_subset.txt')
+            self.line_list_file = os.path.join(os.path.dirname(__file__), 'data/h3p_line_list_neale_1996_subset.txt')
         else : self.line_list_file = line_list_file
         
         # Configure logging 
@@ -219,7 +219,7 @@ class h3p :
     def dIdo_process(self, i, k) : 
 
         numerator_deriv = 2.0 * ( self.wavelength[i] - (1e4/self.line_data['wl'][k] + self.offset[i] ))
-        dIdc            = np.power(self.wavelength[i], self.offset_index)
+        dIdc            = -np.power(self.wavelength[i], self.offset_index)
 
         return self.intensity_ik * numerator_deriv / (2.0 * np.power(self.sigma[i], 2)) * dIdc 
         
@@ -263,7 +263,7 @@ class h3p :
         self.parse_kwargs(kwargs) 
 
     # Change the number of polynomial terms 
-    def modify_vars(self, nnew, nnold, var) :
+    def modify_vars(self, nnew, nold, var) :
     
         # Remove polynomial terms 
         if (nnew < nold) : 
@@ -276,7 +276,7 @@ class h3p :
             for i in range(nold, nnew) : 
                 key = var + '-' + str(i)
                 self.vars[key] = 0.0
-                 
+
     # Parse the kewyord input
     def parse_kwargs(self, kwargs) :
 
@@ -298,29 +298,39 @@ class h3p :
 
         # Now set the spectrum parameters
         ok_keys = self.vars.keys()
-        # ok_keys.append('nsigma', 'noffset', 'nbackground')
+       # ok_keys.append('nsigma', 'noffset', 'nbackground')
         for key, value in kwargs.items() :
         
             # Allow no dash suffix for zero order polynomials 
             if (key == 'sigma') : key = 'sigma-0'
             if (key == 'offset') : key = 'offset-0'
             if (key == 'background') : key = 'background-0'
+            
+            # Alternative ways to set the line-width
             if (key == 'fwhm') : 
                 key = 'offset-0'
                 value /= np.sqrt(2 * np.pi)
-            
+            if (key == 'R') : 
+                key = 'sigma-0'
+                value = ( np.mean(self.wavelength) / value ) / np.sqrt(2 * np.pi)                         
+
             if key in ok_keys : 
                 self.vars[key] = float(value)
             elif (key == 'wavelength') : self.wavelength = np.array(value)
             elif (key == 'data') : self.data = np.array(value)
+            elif (key in ['nsigma', 'noffset', 'nbackground']) : 
+                pass
             else : logging.error('Unknown set of key/values: ' + key + ' = ' + str(value))
 
     def fit(self, params_to_fit = '', **kwargs) : 
 
+        # Sanity check the inputs
+        if (self.check_inputs() == False) : return False
+
         self.parse_kwargs(kwargs)
 
         if (len(self.data) == 1) : 
-            logging.error('Nothing to fit - do data required (e.g. h3p.fit(data = uranus))')
+            logging.error('Nothing to fit - data is required, e.g. h3p.fit(data = uranus)')
             return False
 
         function_map = {'temperature' : 'dIdT()', 'density' : 'dIdN()', 'offset-n' : 'dIdo(n)', 'sigma-n' : 'dIds(n)', 'background-n' : 'dIdb(n)'}
@@ -372,7 +382,10 @@ class h3p :
             diffs = []
             for p, param in enumerate(self.params_to_fit) : 
                 diff = np.linalg.det(ABC[p]) / np.linalg.det(Z) 
+#                diff = determinant_fast(ABC[p]) / determinant_fast(Z) 
                 self.vars[param] += diff
+
+
 
                 diffs.append(diff)
                 
@@ -468,21 +481,104 @@ class h3p :
 
         return temps, h2dens, scalings
 
-
     def get_results(self, verbose = True) : 
+        """
+        Return the results of the spectral fit. 
+        
+        """
         if (self._fit_sucess == False) : return False
 
         nl = "\n"
         txt  = ' Spectrum parameters:' + nl
-        txt += '         Temperature    = {ds:0.1f} ± {ed:0.1f} [K]'.format(ds = self.vars['temperature'], ed=self.errors['temperature']) + nl
-        txt += '         Column density = {ds:0.2E} ± {ed:0.2E} [m-2]'.format(ds = self.vars['density'], ed=self.errors['density']) +  nl 
+        txt += '         Temperature    = {ds:0.1f} ± {ed:0.1f} [K]'.format(ds = self.vars['temperature'], ed = self.errors['temperature']) + nl
+        txt += '         Column density = {ds:0.2E} ± {ed:0.2E} [m-2]'.format(ds = self.vars['density'], ed = self.errors['density']) +  nl 
         txt += '         ------------------------------' + nl
         for key in self.vars.keys() :
             if (key in ['temperature', 'density']) : continue
             #txt += '         ' + key + ' = ' + str(self.vars[key]) + ' ± ' + str(self.errors[key]) + nl
-            txt += '         {ea} = {ds:0.2E} ± {ed:0.2E}'.format(ea = key, ds = self.vars[key], ed=self.errors[key]) +  nl 
+            if ( self.errors[key] == 0 ) :
+                txt += '         {ea} = {ds:0.2E}'.format(ea = key, ds = self.vars[key]) + nl 
+            else : txt += '         {ea} = {ds:0.2E} ± {ed:0.2E}'.format(ea = key, ds = self.vars[key], ed=self.errors[key]) +  nl 
 
         if (verbose == True) : logging.info(txt)
         return self.vars, self.errors
 
+
+    def ylabel(self, label = 'Intensity', prefix = '') :    
+        """
+        Return the formatted intesity ylabel for matplotlib.
+        """
+        return label + ' (' + prefix + 'Wm$^{-2}$sr$^{-1}{\mu}$m$^{-1}$)'
+
+    def xlabel(self) : 
+        """
+        Return the formatted intesity xlabel for matplotlib.
+        """
+        return 'Wavelength (${\mu}$m)'
+
+    def guess_density(self, verbose = True, **kwargs) : 
+    
+        model = self.model()
+        if (np.max(model) == 0) : 
+            logging.error('The model generated only zeros - cannot make a guess at any parameter')
+            return model
+
+        intensity_factor = np.nanmax(self.data) / np.nanmax(model)
+        density_guess = self.vars['density'] * intensity_factor
+
+        if (verbose) : 
+            logging.info('Estimated density = {ds:0.2E} m-2'.format(ds = density_guess))
+
+        self.set(density = density_guess)
+
+        return model * intensity_factor
+
+
+
+    def guess_offset(self, verbose = True, **kwargs) :
+
+        if (self.check_inputs() == False) : return False
+
+        self.parse_kwargs(kwargs)
+
+        # Generate a H3+ model and check that it is nonzero.
+        model = self.model(offset = 0)
+        if (np.max(model) == 0) : 
+            logging.error('The model generated only zeros - cannot make a guess at any parameter')
+            return model
+        
+        # Calculate the wavelength diference between the pean intensity in the model
+        # and the peak intensity in the data 
+        max_model_pos = np.argmax(model)        
+        max_data_pos  = np.argmax(self.data)   
+        offset_guess  = self.wavelength[max_data_pos] - self.wavelength[max_model_pos]
+        
+        # Check that this wavelength offset makes sense
+        if (np.abs(offset_guess) > 0.5 * np.mean(self.wavelength)) : 
+            txt = 'The estimated offset is larger than half of the wavlength scale. This is strange. '
+            txt  += 'Is the wavelength calibration that bad? Or try using a better estimate for the temperature.'
+            logging.warning(txt)
+            offset_guess = 0.0
+    
+        # Log the guesses 
+        if (verbose) : 
+            logging.info('Estimated offset =  {ds:0.2E} μm'.format(ds = offset_guess))
+    
+        # Feed the guesses back into the model
+        self.set(offset = offset_guess)
+
+        return self.model()
+
+    def check_inputs(self) : 
+            # Santiy check the inputs
+        if (len(self.data) != len(self.wavelength)) : 
+            logging.error('ERROR - The wavelength array has a different length to the data array!')
+            return False
+
+        # We need to have some data to guess on
+        if (len(self.data) == 1) : 
+            logging.error('Nothing to fit - data is required, e.g. h3p.fit(data = uranus)')
+            return False
+    
+        return True
 

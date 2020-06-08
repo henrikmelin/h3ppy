@@ -26,7 +26,7 @@ from setuptools import setup, find_packages
 
 setup(
     name             = 'h3ppy',
-    version          = '0.2',
+    version          = '0.2.5',
     author           = 'Henrik Melin',
     author_email     = 'h.melin@gmail.com',
     description      = 'Model and fit H3+ spectra',
@@ -34,7 +34,8 @@ setup(
     keywords         = 'infrared spectroscopy H3+ modelling',
     packages         = find_packages(),
     install_requires = ['numpy'], 
-    data_files       = [['data', ['data/h3p_line_list_neale_1996_subset.txt']]],
+    package_data     = {'h3ppy': ['h3ppy/data/h3p_line_list_neale_1996_subset.txt']},
+    include_package_data=True,    
     long_description = """
 # h3ppy
 A python package for modelling and fitting H<sub>3</sub><sup>+</sup> spectra
