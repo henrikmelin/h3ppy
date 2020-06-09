@@ -13,7 +13,6 @@ dat = np.loadtxt(data_file, skiprows=4, dtype = types)
 spectrum = dat['i'] * 4.2545e10 / (3.1 * 3.1)
 wave = dat['w']
 
-
 # Make our h3ppy object :-) 
 h3p = h3ppy.h3p()
 
@@ -21,39 +20,20 @@ h3p = h3ppy.h3p()
 # expected line width
 h3p.set(wavelength = wave, data = spectrum, R = 1300)
 
-
-# We need to guess a temperature - Voyager 2 measured 750 K
-h3p.set(temperature = 850)
+# We need to guess a temperature
+h3p.set(temperature = 1000)
 
 # Let h3ppy try and guess a wavelength offset
 guess = h3p.guess_offset()
+
 # Guess the density - this'll effectively scale the spectrum to the observed spectrum
-# It really is not a measure of the actual density.! 
+# It really is not a measure of the actual density!  
 guess = h3p.guess_density()
 
-# Do a better fit of the offset
-params_to_fit = ['offset-0']
-fit           = h3p.fit(params_to_fit = params_to_fit)    
-vars, errs    = h3p.get_results()
+# Let h3ppy do the fitting - this will do a full five parameter fit
+fit           = h3p.fit(verbose = False)    
 
-# Do a better fit for the line width
-params_to_fit = ['density', 'sigma-0']
-fit           = h3p.fit(params_to_fit = params_to_fit)    
-vars, errs    = h3p.get_results()
-
-# Make a first stab at fitting temperature and density
-params_to_fit = ['temperature', 'density']
-fit           = h3p.fit(params_to_fit = params_to_fit)    
-vars, errs    = h3p.get_results()
-
-# Fit the sigma again
-params_to_fit = ['density', 'sigma-0']
-fit           = h3p.fit(params_to_fit = params_to_fit)    
-vars, errs    = h3p.get_results()
-
-# Fit the temperature again
-params_to_fit = ['temperature', 'density']
-fit           = h3p.fit(params_to_fit = params_to_fit)    
+# Get the results
 vars, errs    = h3p.get_results()
 
 # Plot the results! 
@@ -69,4 +49,6 @@ ax.set_ylabel(h3p.ylabel(prefix = '$\mu$'))
 
 plt.savefig('cgs4_uranus_fit.png')
 plt.close()
+
+
 
