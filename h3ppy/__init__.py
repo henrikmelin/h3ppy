@@ -6,6 +6,8 @@ class h3p :
 
     def __init__(self, line_list_file = '', **kwargs):
 
+        self.dtype = 'double'
+
         # Provide the opportunity to use another line list
         if (line_list_file == '') :
             self.line_list_file = os.path.join(os.path.dirname(__file__), 'data/h3p_line_list_neale_1996_subset.txt')
@@ -30,7 +32,7 @@ class h3p :
         
         # When to stop iterating the fitting loop. This is defined as the ratio between
         # the first parameter delta over the current. 
-        self.convergence_limit = 1e-5
+        self.convergence_limit = 1e-2
               
         # The default set of variables
         self.vars = {}
@@ -40,7 +42,7 @@ class h3p :
         self.vars['offset-0']      = 0.0
         self.vars['background-0']  = 0.0
         self.wavelength = self.wavegen(3.94, 4.01, 300)
-        self.data = np.array([0])
+        self.data = np.array([0], dtype = self.dtype)
 
         # The number of terms used for these parameters
         self.nsigma        = 1
@@ -79,10 +81,10 @@ class h3p :
 
         """
         # Don't recalculate if we've just done it
-        if (self._last_temperature == self.vars['temperature']) : 
-            return self.line_intensity                
+#        if (self._last_temperature == self.vars['temperature']) : 
+#            return self.line_intensity                
 
-        Q = self.Q()
+        Q           = self.Q()
 
         self.line_intensity = np.zeros(len(self.line_data['gw']))
         for i in range(len(self.line_data['gw'])) : 
@@ -98,7 +100,7 @@ class h3p :
                 self.line_intensity[i] = intensity
     
         self._last_temperature = self.vars['temperature']
-    
+        
         return self.line_intensity                
         
     def model(self, **kwargs) :
@@ -120,12 +122,11 @@ class h3p :
         
         self.parse_kwargs(kwargs)
 
-        spectrum   = np.zeros(len(self.wavelength))
+        spectrum   = np.zeros(len(self.wavelength), dtype = self.dtype)
 
         self.sigma      = self.poly_fn('sigma', self.nsigma)
         self.offset     = self.poly_fn('offset', self.noffset)
         self.background = self.poly_fn('background', self.nbackground)
-
 
         relevant_range = np.max(self.sigma) * self.sigma_limit
         
@@ -133,7 +134,7 @@ class h3p :
         for k in np.arange(len(self.line_data['wl'])) : 
 
             # Only calculate over the wavelength range appropriate for this line
-            relevant_waves = np.argwhere(np.abs(self.wavelength - 1e4/self.line_data['wl'][k]) < relevant_range)
+            relevant_waves = np.argwhere(np.abs(self.wavelength - (1e4/self.line_data['wl'][k] + np.mean(self.offset))) < relevant_range)
 
             for i in relevant_waves : 
                 
@@ -144,7 +145,7 @@ class h3p :
                 # We can process the spectrum by adding additional terms, 
                 # mainly for the derivaties of the spectral function.    
                 if (process_fn == '') : spectrum[i] += self.intensity_ik
-                else : spectrum[i] = getattr(self, process_fn)(i, k)
+                else : spectrum[i] += getattr(self, process_fn)(i, k)
     
         return spectrum
                 
@@ -164,7 +165,7 @@ class h3p :
             logging.error('Partition constants out of range of temperature ' + str(self.vars['temperature']) + ' K')        
             return np.array([0])        
         
-        return np.array(constants)
+        return np.array(constants, dtype = self.dtype)
 
     # Calculate the H3+ partition function
     def Q(self, **kwargs) :
@@ -178,7 +179,7 @@ class h3p :
     
         Q = 0.0
         for i, const in np.ndenumerate(pconst) : 
-            Q += const * np.power(self.vars['temperature'], np.double(i))
+            Q += const * np.power(self.vars['temperature'], np.double(i[0]))
             
         return Q;
 
@@ -218,8 +219,8 @@ class h3p :
     # Alter the spectral function for dIdo()
     def dIdo_process(self, i, k) : 
 
-        numerator_deriv = 2.0 * ( self.wavelength[i] - (1e4/self.line_data['wl'][k] + self.offset[i] ))
-        dIdc            = -np.power(self.wavelength[i], self.offset_index)
+        numerator_deriv = 2.0 * ( self.wavelength[i] - (1e4/self.line_data['wl'][k] + self.offset[i]) )
+        dIdc            = 1.0 * np.power(self.wavelength[i], self.offset_index)
 
         return self.intensity_ik * numerator_deriv / (2.0 * np.power(self.sigma[i], 2)) * dIdc 
         
@@ -290,17 +291,18 @@ class h3p :
 
             elif (key == 'noffset') : 
                 self.modify_vars(value, self.noffset, 'offset')
-                self.nsigma = value                
+                self.noffset = value                
 
             elif (key == 'nbackground') : 
                 self.modify_vars(value, self.nbackground, 'background')
-                self.nsigma = value                
+                self.nbackground = value                
 
         # Now set the spectrum parameters
         ok_keys = self.vars.keys()
-       # ok_keys.append('nsigma', 'noffset', 'nbackground')
+        # ok_keys.append('nsigma', 'noffset', 'nbackground')
+       
         for key, value in kwargs.items() :
-        
+
             # Allow no dash suffix for zero order polynomials 
             if (key == 'sigma') : key = 'sigma-0'
             if (key == 'offset') : key = 'offset-0'
@@ -316,22 +318,18 @@ class h3p :
 
             if key in ok_keys : 
                 self.vars[key] = float(value)
-            elif (key == 'wavelength') : self.wavelength = np.array(value)
-            elif (key == 'data') : self.data = np.array(value)
+            elif (key == 'wavelength') : self.wavelength = np.array(value, dtype = self.dtype)
+            elif (key == 'data') : self.data = np.array(value, dtype = self.dtype)
             elif (key in ['nsigma', 'noffset', 'nbackground']) : 
                 pass
             else : logging.error('Unknown set of key/values: ' + key + ' = ' + str(value))
 
-    def fit(self, params_to_fit = '', **kwargs) : 
-
-        # Sanity check the inputs
-        if (self.check_inputs() == False) : return False
+    def fit(self, params_to_fit = '', verbose = False, niter = 8, **kwargs) : 
 
         self.parse_kwargs(kwargs)
 
-        if (len(self.data) == 1) : 
-            logging.error('Nothing to fit - data is required, e.g. h3p.fit(data = uranus)')
-            return False
+        # Sanity check the inputs
+        if (self.check_inputs() == False) : return False
 
         function_map = {'temperature' : 'dIdT()', 'density' : 'dIdN()', 'offset-n' : 'dIdo(n)', 'sigma-n' : 'dIds(n)', 'background-n' : 'dIdb(n)'}
 
@@ -340,23 +338,15 @@ class h3p :
             self.params_to_fit = self.vars.keys()
         else : self.params_to_fit = params_to_fit
 
-        #params_to_fit = #['temperature', 'density', 'sigma-0', 'offset-0', 'background-0']
-
-
-        self.noffset      = 1
-#        self.offset_consts = np.array([0, 0])
-        self.nsigma      = 1
-        self.nbackground = 1
-
-        niter = 8
-
         self.convergence_arrays = []
         
-        
+        if (verbose) : logging.info('Number of fitting iterations is set to {niter}'.format(niter = niter))
         
         iternbr = 0
         for i in range(niter) : 
 
+            msg = ''
+            
             # The difference between the observation and the data
             diff = self.data - self.model()
 
@@ -366,34 +356,55 @@ class h3p :
                     p1, p2 = param.split('-')
                     fn = function_map[param.replace(p2, 'n')].replace('n', p2 )
                 else : fn = function_map[param]
-                elements[param] = eval('self.' + fn)     
+                elements[param] = np.array ( eval('self.' + fn), dtype = self.dtype)
         
             # Generate the Z and ABC matricies
-            Z   = np.zeros([len(elements), len(elements)])
-            ABC = np.zeros([len(elements), len(elements), len(elements)])
+            Z   = np.zeros([len(elements), len(elements)], dtype = self.dtype)
+            ABC = np.zeros([len(elements), len(elements), len(elements)], self.dtype)
             for x, xparam in enumerate(self.params_to_fit) : 
                 for y, yparam in enumerate(self.params_to_fit) : 
-                    Z[y][x] = np.sum(elements[xparam] * elements[yparam])
+                    Z[y][x] = np.sum(elements[xparam] * elements[yparam], dtype = self.dtype)
                     for p, pparam in enumerate(self.params_to_fit) : 
                         if (y == p) : diffvar = diff
                         else : diffvar =  elements[yparam]
-                        ABC[p][y][x] = np.sum(elements[xparam] * diffvar)
+                        ABC[p][y][x] = np.sum(elements[xparam] * diffvar, dtype = self.dtype)
 
-            diffs = []
+            diffs = {}
+            prev_vars = {}
             for p, param in enumerate(self.params_to_fit) : 
-                diff = np.linalg.det(ABC[p]) / np.linalg.det(Z) 
-#                diff = determinant_fast(ABC[p]) / determinant_fast(Z) 
-                self.vars[param] += diff
+                #print('Z', Z)
+                #print('ABC', ABC[p])
+#                print(self.dIdT())
+                detABC = np.linalg.det(ABC[p])
+                detZ   = np.linalg.det(Z) 
+                #print('detABC', detABC)
+                #print('detZ', detZ)
+                if (detABC == 0 or detZ == 0) : 
+                    msg = '|ABC| or |Z| are zero.'    
+                    diff = -1           
+                else : 
 
+                    diff =  detABC / detZ
 
+                    prev_vars[param] = self.vars[param]
+                    self.vars[param] += diff # * 0.5
 
-                diffs.append(diff)
+#                    if (diff < 0.1 * prev_vars[param]) : self.vars[param] = 0.1 * prev_vars[param]
+#                    elif (diff > 10 * prev_vars[param]) : self.vars[param] = 10 * prev_vars[param]
+
+                    # Dampen the density change
+#                    if (param in ['density', 'temperature', 'sigma-0']) : 
+#                        if (self.vars[param] < 0) : 
+#                            self.vars[param] = 0.5 * prev_vars[param]
+
+                    #print(self.vars['offset-0'], diff)
+
+                    diffs[param] = diff
                 
                 # Sanity check the retrieved variables 
-                msg = ''
                 if (np.isfinite(diff) == False) : '|D|/|Z| returned a NaN'
                 if (self.vars['temperature'] < 0) : msg = 'Temperature is less than zero'
-                if (self.vars['temperature'] > 5000) : msg = 'Temperature is larger than one might expect'
+                if (self.vars['temperature'] > 5000) : msg = 'Temperature is larger this upper boundary of h3ppy (5000 K)'
                 if (self.vars['density'] < 0) : msg = 'Density is less than zero'
                 self.sigma = self.poly_fn('sigma', self.nsigma)
                 if (np.mean(self.sigma) < 0) : msg = 'Line width is negative'
@@ -401,14 +412,27 @@ class h3p :
                     self._fit_sucess = False
                     #tip = "\n        This generally happens when the line width (sigma) and/or the wavelength scale is off."
                     tip = ''
-                    logging.error('🚨 Fit cannot converge: ' + msg + tip)
-                    return np.full(len(self.wavelength), -1)
+                    logging.error('🚨  Fit failed to converge - solution is numerially unstable ') # + msg + tip)
+                    if (verbose) : logging.error('In this instance: {msg}'.format(msg = msg))
+                    return np.full(len(self.wavelength), 0)
+                    
+            # Output the intermediate values if ya want
+            if (verbose) : self.print_vars()    
+                
             self._fit_sucess = True
             self.convergence_arrays.append(diffs)
 
             # This parameterises the level of convergence            
-            converger = np.abs(np.min(diff / self.convergence_arrays[0]))
+            fracs = [ np.abs(diffs[p] / self.vars[p]) for p in self.params_to_fit ]
+            converger = np.mean( fracs )  # self.vars[params_to_fit[0]] / 
+
             if (converger < self.convergence_limit) : break
+            elif (converger > 100) : break
+
+            if (verbose) : logging.info('The converger is {con:0.2E} after {i} iterations'.format(con = converger, i = i))
+
+        if (verbose) : logging.info('Fitting concluded after {i} iterations.'.format(i = i + 1))
+        if (verbose) : logging.info('The final convergence condition is {lim:0.2E}.'.format(lim = converger))
 
         # Calculate the errors on the retrieved parameters
         diff = self.data - self.model()
@@ -486,7 +510,7 @@ class h3p :
         Return the results of the spectral fit. 
         
         """
-        if (self._fit_sucess == False) : return False
+        if (self._fit_sucess == False) : return False, False
 
         nl = "\n"
         txt  = ' Spectrum parameters:' + nl
@@ -503,6 +527,21 @@ class h3p :
         if (verbose == True) : logging.info(txt)
         return self.vars, self.errors
 
+    def print_vars(self) : 
+        """
+        Print the current set of spectrum variables held in h3ppy.
+        """
+        nl = "\n"
+        txt = 'Current paramter set:' + nl
+        txt += '        Temperature = {ds:0.1f}'.format(ds = self.vars['temperature']) + nl
+        txt += '        Density     = {ds:0.2E}'.format(ds = self.vars['density']) + nl
+        vkeys = self.vars.keys()
+        for k in vkeys : #, val in enumerate(sorted(self.vars)) :   
+            if (k in ['temperature', 'density']) : continue
+            txt += '        {key} = {ds:0.2E}'.format(key = k, ds = self.vars[k]) + nl
+        logging.info(txt)
+        
+        return self.vars
 
     def ylabel(self, label = 'Intensity', prefix = '') :    
         """
@@ -517,6 +556,10 @@ class h3p :
         return 'Wavelength (${\mu}$m)'
 
     def guess_density(self, verbose = True, **kwargs) : 
+    
+        self.parse_kwargs(kwargs)
+    
+        if (self.check_inputs() == False) : return False
     
         model = self.model()
         if (np.max(model) == 0) : 
@@ -537,9 +580,9 @@ class h3p :
 
     def guess_offset(self, verbose = True, **kwargs) :
 
-        if (self.check_inputs() == False) : return False
-
         self.parse_kwargs(kwargs)
+
+        if (self.check_inputs() == False) : return False
 
         # Generate a H3+ model and check that it is nonzero.
         model = self.model(offset = 0)
@@ -570,15 +613,17 @@ class h3p :
         return self.model()
 
     def check_inputs(self) : 
-            # Santiy check the inputs
-        if (len(self.data) != len(self.wavelength)) : 
-            logging.error('ERROR - The wavelength array has a different length to the data array!')
-            return False
-
+ 
         # We need to have some data to guess on
         if (len(self.data) == 1) : 
-            logging.error('Nothing to fit - data is required, e.g. h3p.fit(data = uranus)')
+            logging.error('ERROR - Data array is required at this stage! E.g. h3p.fit(data = uranus)')
             return False
+    
+        # Santiy check the inputs
+        if (len(self.data) != len(self.wavelength)) : 
+            logging.error('ERROR - The wavelength array has a different length to the data array! ({nd} and {nw})').format(nd = len(self.data), nw = len(self.wavelength))
+            return False
+
     
         return True
 

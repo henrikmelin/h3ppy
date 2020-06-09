@@ -31,10 +31,10 @@ guess = h3p.guess_offset()
 guess = h3p.guess_density()
 
 # Let h3ppy do the fitting - this will do a full five parameter fit
-fit           = h3p.fit(verbose = False)    
+fit = h3p.fit(verbose = False)    
 
 # Get the results
-vars, errs    = h3p.get_results()
+vars, errs = h3p.get_results()
 
 # Plot the results! 
 fig, ax = plt.subplots()
@@ -46,9 +46,5 @@ ax.legend(frameon = False)
 # Use the h3ppy helper functions for the labels
 ax.set_xlabel(h3p.xlabel())
 ax.set_ylabel(h3p.ylabel(prefix = '$\mu$'))
-
-plt.savefig('cgs4_uranus_fit.png')
+plt.savefig('../img/cgs4_uranus_fit.png')
 plt.close()
-
-
-
