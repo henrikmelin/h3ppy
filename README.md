@@ -6,6 +6,11 @@ A python package for modelling and fitting H<sub>3</sub><sup>+</sup> spectra. Gr
 ```
 pip3 install h3ppy
 ```
+Or to upgrade to the latest greatest version: 
+```
+```
+pip3 install h3ppy --upgrade
+```
 ## Generate a model H<sub>3</sub><sup>+</sup> spectrum 
 
 
@@ -150,8 +155,11 @@ plt.close()
 
 ```
 Which produces this fit: 
+
 ![Uranus NASA IRTF H3+ spectra](img/cgs4_uranus_fit.png)
+
 and an output in the console of:
+
 ```
 [h3ppy]  Spectrum parameters:
          Temperature    = 751.5 ± 42.7 [K]
