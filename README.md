@@ -8,7 +8,6 @@ pip3 install h3ppy
 ```
 Or to upgrade to the latest greatest version: 
 ```
-```
 pip3 install h3ppy --upgrade
 ```
 ## Generate a model H<sub>3</sub><sup>+</sup> spectrum 
