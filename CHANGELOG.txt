@@ -1,0 +1,15 @@
+## 0.2.6
+
+* Fixed major fitting but, mainly seen at low spectral resolutions when line-blending is strong
+* Introduced a verbose keyword in fit(), which helps debug things
+* print_vars() lists the current set of variables the model works with
+* Fixed error in the implementation of linear/quadratic offsets
+
+## 0.2.5
+
+* Introduced guess_density() and guess_offset() to aid the fitting process
+* xlabel() and ylabel() provides the matplotlib formatted x and y label for wavelength and intensity respectively
+
+## 0.2.2
+
+Initial release 
