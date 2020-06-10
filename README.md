@@ -96,9 +96,9 @@ Which is the same temperature and density as what we produced the model with, wi
 ![Model H3+ spectra](img/example_fit.png)
 
 
-## Real world example: NASA IRTF CGS4 Uranus spectrum
+## Real world example: UKIRT CGS4 Uranus spectrum
 
-There are few spectra that are as historic as this one. It's the first spectrum of H<sub>3</sub><sup>+</sup> emission from Uranus and it was taken with the NASA Infrared Telescope Facility in Hawaii in 1992, and was published by Trafton et al. (1993, Astronomical Journal, 405, 761-766). The full code for this example is contained in [`examples/cgs4_uranus.py`](examples/cgs4_uranus.py)
+In my opinion, there are few spectra that are as historic as this one. It's the first spectrum of H<sub>3</sub><sup>+</sup> emission from Uranus and it was taken by Larry Trafton with the United Kingdom Infrared Telescope (UKIRT) in Hawaii in 1992, and was published by Trafton et al. (1993, Astronomical Journal, 405, 761-766). The full code for this example is contained in [`examples/cgs4_uranus.py`](examples/cgs4_uranus.py)
 
 ```python
 import matplotlib.pyplot as plt
@@ -168,7 +168,7 @@ and an output in the console of:
          offset-0 = -9.91E-04 ± 5.64E-05
          background-0 = 2.40E-06 ± 8.77E-07
 ```
-which is very close, within errors, that Trafton et al. (1992) got - yas! Also, note that `h3ppy` is using line lists and partition functions that weren't available in 1992! This shows that `h3ppy` can reproduce past results, which is reassuring! 
+which is very close to the published result, T = 740 K, that Trafton et al. (1992) got - yas! Also, note that `h3ppy` is using H<sub>3</sub><sup>+</sup> line lists and partition functions that weren't available in 1992! This shows that `h3ppy` can reproduce past results, which is reassuring! 
 
 
 # Input parameters
