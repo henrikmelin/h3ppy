@@ -44,10 +44,9 @@ plt.close()
 ```
 This creates the following H<sub>3</sub><sup>+</sup> spectrum: 
 
-<center> 
-![Model H3+ spectra](img/example_model.png) 
-</center>
-
+<p align="center"> 
+![Model H3+ spectra](img/example_model.png)
+</p>
 Neat, right?! We can now generate the spectrum for any temperature and density combination, with different wavelength coverage and at different spectral resolutions. 
 
 
@@ -97,9 +96,7 @@ Which produces an output in the console like:
 ```
 Which is the same temperature and density as what we produced the model with, within the error bars of the fit. The fit to the simulated H<sub>3</sub><sup>+</sup> data looks like this:
 
-<center> 
-![Model H3+ spectra](img/example_fit.png) 
-</center>
+![Model H3+ spectra](img/example_fit.png)
 
 # Real world (universe) examples 
 
@@ -164,7 +161,7 @@ plt.close()
 ```
 Which produces this fit: 
 
-<center> ![Uranus NASA IRTF H3+ spectra](img/cgs4_uranus_fit.png) </center>
+![Uranus NASA IRTF H3+ spectra](img/cgs4_uranus_fit.png)
 
 and an output in the console of:
 
@@ -215,7 +212,7 @@ plt.close()
 ```
 Which produces this spectrum:
 
-<center> ![Keck NIRSPEC Jupiter data](img/nirspec_jupiter_data.png) </center>
+![Keck NIRSPEC Jupiter data](img/nirspec_jupiter_data.png)
 
 Since we are operating at a moderately high spectral resolution, I'm going to sub-divide the data, focusing on the individual spectral lines. This will not adversely affect the fit, since it is the relative intesity of the H<sub>3</sub><sup>+</sup> spectral lines that determine the temperature and the density. By zooming into the plot above, I determine the approximate wavelength of the group of lines.  The code below will reduce the wavelength range to focus only on the relevant H<sub>3</sub><sup>+</sup> line regions, and then fit the resulting spectrum. 
 
@@ -275,7 +272,11 @@ which produces a console output of
 ```
 And looks like: 
 
-<center> ![Keck NIRSPEC Jupiter data](img/nirspec_jupiter_fit.png) </center>
+![Keck NIRSPEC Jupiter data](img/nirspec_jupiter_fit.png)
+
+
+
+
 
 # Input parameters
 
@@ -312,8 +313,8 @@ FWHM = 2 * np.sqrt(2 * np.log(2)) * sigma = 2.35482 * sigma
 ### The parameters of a spectrum
 The figure below illustrates how the evaluated polynomials for the offset, sigma (via the FWHM), and background at a particular wavelength determines the way that the line-intensities are distributed over across wavelength space.   
 
-<center> ![The parameters of a spectrum](img/spectrum_parameters.png) <center>
- 
+![The parameters of a spectrum](img/spectrum_parameters.png)
+
 
 ### Using different H<sub>3</sub><sup>+</sup> line data
 
