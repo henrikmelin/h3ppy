@@ -10,6 +10,7 @@ Or to upgrade to the latest greatest version:
 ```
 pip3 install h3ppy --upgrade
 ```
+
 ## Generate a model H<sub>3</sub><sup>+</sup> spectrum 
 
 
@@ -28,7 +29,8 @@ h3p = h3ppy.h3p()
 wave = h3p.wavegen(3.94, 4.03, 1024)
 
 # Create a H3+ model spectrum for a set of physical parameters 
-# Spectral resolution R = 1200
+# Spectral resolution R = 1200, T = 1000, N = 1e14
+# This is the minimum set of parameters required for generating a model
 model = h3p.model(density = 1e14, temperature = 1000, R = 1000, wavelength = wave)
 
 # Plot the model
@@ -95,17 +97,20 @@ Which is the same temperature and density as what we produced the model with, wi
 
 ![Model H3+ spectra](img/example_fit.png)
 
+# Real world (universe) examples 
 
-## Real world example: UKIRT CGS4 Uranus spectrum
+Below are a number of examples of how `h3ppy` can be applied to actual observations. The python code and the observations are contained in the `examples/` folder. 
 
-In my opinion, there are few spectra that are as historic as this one. It's the first spectrum of H<sub>3</sub><sup>+</sup> emission from Uranus and it was taken by Larry Trafton with the United Kingdom Infrared Telescope (UKIRT) in Hawaii in 1992, and was published by Trafton et al. (1993, Astronomical Journal, 405, 761-766). The full code for this example is contained in [`examples/cgs4_uranus.py`](examples/cgs4_uranus.py)
+## Example 1: UKIRT CGS4 Uranus spectrum
+
+In my opinion, there are few spectra that are as historic as this one. It's the first spectrum of H<sub>3</sub><sup>+</sup> emission from Uranus and it was taken by Larry Trafton with the United Kingdom Infrared Telescope (UKIRT, now sadly defunct) in Hawai'i in 1992, and was published by [Trafton et al. (1993, Astronomical Journal, 405, 761-766)](https://ui.adsabs.harvard.edu/abs/1993ApJ...405..761T/abstract). The full code for this example is contained in [`examples/cgs4_uranus.py`](examples/cgs4_uranus.py)
 
 ```python
 import matplotlib.pyplot as plt
 import numpy as np
 import h3ppy
 
-# Read the NASA IRTF CGS$ data from Trafton et al., (1993)
+# Read the UKIRT CGS4 data from Trafton et al., (1993)
 data_file = 'cgs4_uranus_u01apr92.txt'
 types = {'names' : ( 'w', 'i' ), 'formats' : ('f', 'f') }
 dat = np.loadtxt(data_file, skiprows=4, dtype = types)
@@ -171,6 +176,107 @@ and an output in the console of:
 which is very close to the published result, T = 740 K, that Trafton et al. (1992) got - yas! Also, note that `h3ppy` is using H<sub>3</sub><sup>+</sup> line lists and partition functions that weren't available in 1992! This shows that `h3ppy` can reproduce past results, which is reassuring! 
 
 
+## Example 2: Keck II NIRSPEC spectrum of Jupiter's aurora 
+
+The twin Keck telescopes on Mauna Kea in Hawai'i are the largest optical telescopes in the world, and they have been used to observe H<sub>3</sub><sup>+</sup> from the giant planets. Here, we will examine a spectrum of Jupiter's southern aurora obtained with the [NIRSPEC instrument](https://www2.keck.hawaii.edu/inst/nirspec/). The full code for this example is contained in [`examples/nirspec_jupiter.py`](examples/nirspec_jupiter.py)
+
+NIRSPEC has a spectral resolution of `R = λ/Δλ ~ 20000`, which is sufficient to separate the H<sub>3</sub><sup>+</sup> transition lines from each other. First we plot the data. 
+
+```python
+import matplotlib.pyplot as plt
+import numpy as np
+import h3ppy
+
+# Read the NASA IRTF CGS4 data from Trafton et al., (1993)
+data_file = 'nirspec_jupiter.txt'
+types = {'names' : ( 'w', 'i' ), 'formats' : ('f', 'f') }
+dat = np.loadtxt(data_file, skiprows=4, dtype = types)
+wave = dat['w']
+spec = dat['i']
+
+# Create the h3ppy object feed data into it
+# The spectral resolution of NIRSPEC is ~20k
+h3p = h3ppy.h3p()
+
+# Plot the observation
+title = 'Keck NIRSPEC H$_3^+$ spectrum of the southern aurora of Jupiter'
+fig, ax = plt.subplots()
+ax.plot(wave, spec * 1e3)
+ax.set(xlabel = h3p.xlabel(), ylabel = h3p.ylabel(prefix = 'm'), title = title)
+plt.tight_layout()
+plt.savefig('../img/nirspec_jupiter_data.png')
+# plt.show()
+plt.close()
+
+```
+Which produces this spectrum:
+
+![Keck NIRSPEC Jupiter data](img/nirspec_jupiter_data.png)
+
+Since we are operating at a moderately high spectral resolution, I'm going to sub-divide the data, focusing on the individual spectral lines. This will not adversely affect the fit, since it is the relative intesity of the H<sub>3</sub><sup>+</sup> spectral lines that determine the temperature and the density. By zooming into the plot above, I determine the approximate wavelength of the group of lines.  The code below will reduce the wavelength range to focus only on the relevant H<sub>3</sub><sup>+</sup> line regions, and then fit the resulting spectrum. 
+
+```python
+# This function sub-divides data centered on a list of wavelengths
+def subdivide(wave, spec, middles, width = 20) : 
+    ret = []
+    for m in middles : 
+        centre = np.abs(wave - m).argmin()
+        for i in range(centre - width, centre + width) : 
+            ret.append(spec[i])
+    return np.array(ret)
+    
+# The H3+ line centeres contained withing this spectral band
+centers = [3.953, 3.971, 3.986, 3.9945]
+cpos = np.arange(4) * 41 + 20
+
+# Create sub-arrays, focusing on where the H3+ lines are
+subspec = subdivide(wave, spec, centers)
+subwave = subdivide(wave, wave, centers)
+
+# Set the wavelength and the data
+h3p.set(wavelength = subwave, data = subspec, R = 20000)
+
+# Create a x scale for plotting 
+xx      = range(len(subspec))
+
+# Guess the density and proceed with a five parameter fit
+h3p.guess_density()
+fit = h3p.fit()
+vars, errs = h3p.get_results()
+
+# Plot the fit
+fig, ax = plt.subplots()
+ax.plot(xx, subspec * 1e3, '.', label = 'Observation')
+ax.plot(xx, fit * 1e3, label = 'h3ppy H$_3^+$ fit')
+ax.set(xlabel = h3p.xlabel(), ylabel = h3p.ylabel(prefix = 'm'), xticks = cpos, title=title)
+ax.set_xticklabels(centers)
+ax.legend(frameon = False)
+plt.tight_layout()
+plt.savefig('../img/nirspec_jupiter_fit.png')
+plt.close()
+
+```
+
+which produces a console output of 
+
+```
+[h3ppy] Estimated density = 2.09E+15 m-2
+[h3ppy]  Spectrum parameters:
+         Temperature    = 923.6 ± 31.9 [K]
+         Column density = 2.64E+15 ± 2.46E+14 [m-2]
+         ------------------------------
+         background-0 = 6.77E-05 ± 1.69E-05
+         offset-0 = -1.46E-05 ± 1.13E-06
+         sigma-0 = 7.82E-05 ± 1.17E-06
+```
+And looks like: 
+
+![Keck NIRSPEC Jupiter data](img/nirspec_jupiter_fit.png)
+
+
+
+
+
 # Input parameters
 
 The `set()`, `model()`, and `fit()` methods accepts the following inputs:
@@ -227,3 +333,11 @@ You can also concoct your own line list. The reader expects five columns in this
 5. Spin weighting (g<sub>ns</sub>)
 
 Note that the reader will skip the first line of the line list file. 
+
+
+
+# Data resources 
+`h3ppy` uses H<sub>3</sub><sup>+</sup> data to produce models and fits from the following resources:
+
+* The H<sub>3</sub><sup>+</sup> line list from [Neale et al. (1996)](https://ui.adsabs.harvard.edu/abs/1996ApJ...464..516N/abstract) - this data is available for download on the [Exo Mol website](http://www.exomol.com/data/molecules/H3_p/1H3_p/NMT/).
+* The H<sub>3</sub><sup>+</sup> partition function (Q) and total emission (E) from [Miller et al. (2013)](https://ui.adsabs.harvard.edu/abs/2013JPCA..117.9770M/abstract).
