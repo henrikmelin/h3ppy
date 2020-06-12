@@ -44,7 +44,9 @@ plt.close()
 ```
 This creates the following H<sub>3</sub><sup>+</sup> spectrum: 
 
-<center> ![Model H3+ spectra](img/example_model.png) </center>
+<center> 
+![Model H3+ spectra](img/example_model.png) 
+</center>
 
 Neat, right?! We can now generate the spectrum for any temperature and density combination, with different wavelength coverage and at different spectral resolutions. 
 
@@ -95,7 +97,9 @@ Which produces an output in the console like:
 ```
 Which is the same temperature and density as what we produced the model with, within the error bars of the fit. The fit to the simulated H<sub>3</sub><sup>+</sup> data looks like this:
 
-<center> ![Model H3+ spectra](img/example_fit.png) </center>
+<center> 
+![Model H3+ spectra](img/example_fit.png) 
+</center>
 
 # Real world (universe) examples 
 
