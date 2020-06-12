@@ -45,7 +45,7 @@ plt.close()
 This creates the following H<sub>3</sub><sup>+</sup> spectrum: 
 
 <p align="center"> 
-<img src="/example_model.png">
+<img src="img/example_model.png">
 </p>
 Neat, right?! We can now generate the spectrum for any temperature and density combination, with different wavelength coverage and at different spectral resolutions. 
 
