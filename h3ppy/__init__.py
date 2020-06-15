@@ -178,8 +178,8 @@ class h3p :
         pconst = self.Q_constants()    
     
         Q = 0.0
-        for i, const in np.ndenumerate(pconst) : 
-            Q += const * np.power(self.vars['temperature'], np.double(i[0]))
+        for i, const in enumerate(pconst) : 
+            Q += const * np.power(self.vars['temperature'], np.double(i))
             
         return Q;
 
@@ -187,8 +187,9 @@ class h3p :
     def dQdT(self) : 
 
         vardQdT = 0.0
-        for i, const in np.ndenumerate(self.Q_constants()) : 
-            vardQdT += np.float(i[0]) * const * np.power(self.vars['temperature'], i[0] - 1)
+        for i, const in enumerate(self.Q_constants()) : 
+            if (i == 0) : continue
+            vardQdT += np.float(i) * const * np.power(self.vars['temperature'], float(i - 1))
         return vardQdT
 
     # The tempoerature derivative of the spectral function
@@ -407,7 +408,7 @@ class h3p :
                 if (self.vars['temperature'] > 5000) : msg = 'Temperature is larger this upper boundary of h3ppy (5000 K)'
                 if (self.vars['density'] < 0) : msg = 'Density is less than zero'
                 self.sigma = self.poly_fn('sigma', self.nsigma)
-                if (np.mean(self.sigma) < 0) : msg = 'Line width is negative'
+  #              if (np.mean(self.sigma) < 0) : msg = 'Line width is negative'
                 if (msg != '') : 
                     self._fit_sucess = False
                     #tip = "\n        This generally happens when the line width (sigma) and/or the wavelength scale is off."
@@ -517,7 +518,8 @@ class h3p :
         txt += '         Temperature    = {ds:0.1f} ± {ed:0.1f} [K]'.format(ds = self.vars['temperature'], ed = self.errors['temperature']) + nl
         txt += '         Column density = {ds:0.2E} ± {ed:0.2E} [m-2]'.format(ds = self.vars['density'], ed = self.errors['density']) +  nl 
         txt += '         ------------------------------' + nl
-        for key in self.vars.keys() :
+        vkeys = sorted(self.vars.keys())
+        for key in vkeys :
             if (key in ['temperature', 'density']) : continue
             #txt += '         ' + key + ' = ' + str(self.vars[key]) + ' ± ' + str(self.errors[key]) + nl
             if ( self.errors[key] == 0 ) :
@@ -535,7 +537,7 @@ class h3p :
         txt = 'Current paramter set:' + nl
         txt += '        Temperature = {ds:0.1f}'.format(ds = self.vars['temperature']) + nl
         txt += '        Density     = {ds:0.2E}'.format(ds = self.vars['density']) + nl
-        vkeys = self.vars.keys()
+        vkeys = sorted(self.vars.keys())
         for k in vkeys : #, val in enumerate(sorted(self.vars)) :   
             if (k in ['temperature', 'density']) : continue
             txt += '        {key} = {ds:0.2E}'.format(key = k, ds = self.vars[k]) + nl
@@ -626,4 +628,13 @@ class h3p :
 
     
         return True
+
+    def get_rest_wavelength(self) : 
+        """
+        Return the offset wavelength scale where the H3+ lines are at rest (i.e. lab) wavelenghts.
+        
+        """
+        self.offset = self.poly_fn('offset', self.noffset)
+        return self.wavelength - self.offset
+    
 
