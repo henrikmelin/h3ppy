@@ -278,10 +278,21 @@ which produces a console output of
          sigma-0 = 7.82E-05 ± 1.17E-06
 ```
 And looks like: 
-
 <p align="center"> 
 <img src="img/nirspec_jupiter_fit.png">
 </p>
+
+### Fitting more advanced polynomial expressions
+
+So we have a decent fit to the NIRSPEC data above. However, `h3ppy` is capable of fitting polynomial expressions to the sigma (line-width), wavelength offset, and background. In the example below, we will re-fit the Keck data using more complex expressions for these parameters to see if we can improve the fit by increasing the complexity of the spectral fit. 
+
+
+
+<!-- ## Example 3: James Webb Space Telescope - NIRSpec proposals -->
+
+<!-- The James Webb Space Telescope (JWST) is the most powerful and expensive telescope ever contorted. Once launched and in orbit it will be an amazing tool with which to observe H<sub>3</sub><sup>+</sup> through the solar system and beyond. The (NIRSPEC)[https://www.jwst.nasa.gov/content/observatory/instruments/nirspec.html] instruments provides spectra capabilities in the 1 to 5 μm range, which overlaps nicely with the brightest H<sub>3</sub><sup>+</sup> emission lines. The (JWST Exposure Time Calculator)[https://jwst.etc.stsci.edu/] is a tool used for generating signal-to-noise predictions for a given set of -->
+
+
 
 # Input parameters
 
@@ -292,21 +303,21 @@ The `set()`, `model()`, and `fit()` methods accepts the following inputs:
 * `data` - the observed H<sub>3</sub><sup>+</sup> spectrum
 * `temperature` - the intensity of the H<sub>3</sub><sup>+</sup> spectral lines are an exponential function of the temperature. Typical ranges for the ionosphere's of the giant planets are 400 (Saturn) to 1500 K (Jupiter).
 * `density` - the column integrated H<sub>3</sub><sup>+</sup> density, this is the number of ions along the line of sight vector.
-* `sigma-n` - the _n_th polynomial constant of the spectral line width (sigma)
-* `offset-n` - the _n_th polynomial constant of the wavelength offset from the rest wavelength. Doppler shift and wavelength calibration errors can offset the wavelength scale. 
-* `background-n` - he _n_th polynomial constant of the displacement from the zero intensity level of the spectrum
+* `sigma_n` - the _n_th polynomial constant of the spectral line width (sigma)
+* `offset_n` - the _n_th polynomial constant of the wavelength offset from the rest wavelength. Doppler shift and wavelength calibration errors can offset the wavelength scale. 
+* `background_n` - he _n_th polynomial constant of the displacement from the zero intensity level of the spectrum
 * `nsigma` - the number of polynomial constant used for the sigma.
 * `noffset` - the number of polynomial constant used for the offset.
 * `nbackground` - the number of polynomial constant used for the background.
 
 
-The parameters with `-n` suffix indicates that they are the nth polynomial constant. For example, if we want use the following function to describe the sigma:
+The parameters with `_n` suffix indicates that they are the nth polynomial constant. For example, if we want use the following function to describe the sigma:
 ```
-sigma = sigma-0 + sigma-1 * wavelength + sigma-2 * wavelength^2
+sigma = sigma_0 + sigma-1 * wavelength + sigma_2 * wavelength^2
 ```
 then we need to specify the following: 
 ```python
-h3p.set(nsigma = 3, sigma-0 = 0.1, sigma-1 = 0.01, sigma-2 = 0.001) 
+h3p.set(nsigma = 3, sigma_0 = 0.1, sigma_1 = 0.01, sigma_2 = 0.001) 
 ```
 
 ### The line width

@@ -1,3 +1,8 @@
+## 0.2.8
+
+* Fixed keyword argument bug. Changed '-' to '_' to make valid keywords (thanks to Emma for finding this bug!)
+* Added add_noise() - untested as of yet
+
 ## 0.2.7
 
 * Fixed an exponent error in the temperature derivative of the H3+ partition function, dQdT
