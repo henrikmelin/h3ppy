@@ -324,7 +324,7 @@ class h3p :
                 pass
             else : logging.error('Unknown set of key/values: ' + key + ' = ' + str(value))
 
-    def fit(self, params_to_fit = '', verbose = False, niter = 8, **kwargs) :
+    def fit(self, params_to_fit = '', verbose = False, niter = 14, **kwargs) :
 
         self.parse_kwargs(kwargs)
 
@@ -403,7 +403,7 @@ class h3p :
 
                 # Sanity check the retrieved variables
                 if (np.isfinite(diff) == False) : '|D|/|Z| returned a NaN'
-                if (self.vars['temperature'] < 0) : msg = 'Temperature is less than zero'
+                if (self.vars['temperature'] < 100) : msg = 'Temperature is less than zero'
                 if (self.vars['temperature'] > 5000) : msg = 'Temperature is larger this upper boundary of h3ppy (5000 K)'
                 if (self.vars['density'] < 0) : msg = 'Density is less than zero'
                 self.sigma = self.poly_fn('sigma', self.nsigma)
@@ -429,7 +429,7 @@ class h3p :
             if (converger < self.convergence_limit) : break
             elif (converger > 100) : break
 
-            if (verbose) : logging.info('The converger is {con:0.2E} after {i} iterations'.format(con = converger, i = i))
+            if (verbose) : logging.info('The converger is {con:0.2E} after {i} iterations'.format(con = converger, i = i-1))
 
         if (verbose) : logging.info('Fitting concluded after {i} iterations.'.format(i = i + 1))
         if (verbose) : logging.info('The final convergence condition is {lim:0.2E}.'.format(lim = converger))

@@ -1,3 +1,8 @@
+## 0.2.9
+
+* Fixed T < 100 K error reporting in fit()
+* Increased the default number of default iterations in fit() - was seeing it leaving the function too early. 
+
 ## 0.2.8
 
 * Fixed keyword argument bug. Changed '-' to '_' to make valid keywords (thanks to Emma for finding this bug!)
