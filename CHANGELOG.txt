@@ -1,3 +1,7 @@
+## 0.3.0
+
+* Added experimental support for modelling H2 emission lines
+
 ## 0.2.9
 
 * Fixed T < 100 K error reporting in fit()

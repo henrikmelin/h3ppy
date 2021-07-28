@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Copyright (c) 2020 Henrik Melin 
+Copyright (c) 2021 Henrik Melin 
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -26,10 +26,10 @@ from setuptools import setup, find_packages
 
 setup(
     name             = 'h3ppy',
-    version          = '0.2.9',
+    version          = '0.3.0',
     author           = 'Henrik Melin',
     author_email     = 'h.melin@gmail.com',
-    description      = 'Model and fit H3+ spectra',
+    description      = 'Model and fit H3+ and H2 spectra',
     url              = 'https://github.com/henrikmelin/h3ppy',
     keywords         = 'infrared spectroscopy H3+ modelling',
     packages         = find_packages(),
@@ -38,7 +38,7 @@ setup(
     include_package_data=True,    
     long_description = """
 # h3ppy
-A python package for modelling and fitting H<sub>3</sub><sup>+</sup> spectra
+A python package for modelling and fitting H<sub>3</sub><sup>+</sup> and H<sub>2</sub> spectra
 
 ## Install via pip
 ```
