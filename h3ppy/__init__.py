@@ -6,12 +6,23 @@ class h3p :
 
     def __init__(self, line_list_file = '', **kwargs):
 
-        self.dtype = 'double'
 
         # Provide the opportunity to use another line list
         if (line_list_file == '') :
             self.line_list_file = os.path.join(os.path.dirname(__file__), 'data/h3p_line_list_neale_1996_subset.txt')
         else : self.line_list_file = line_list_file
+
+        # Set up required parameters
+        self.startup()
+
+        # Parse any potential input
+        self.parse_kwargs(kwargs)
+
+
+    def startup(self) : 
+
+        # We'll work with double precision
+        self.dtype = 'double'
 
         # Configure logging
         logging.basicConfig(format='[h3ppy] %(message)s', datefmt='%m/%d/%Y %I:%M:%S %p', level=logging.INFO)
@@ -48,9 +59,6 @@ class h3p :
         self.nsigma        = 1
         self.noffset       = 1
         self.nbackground   = 1
-
-        # Parse any potential input
-        self.parse_kwargs(kwargs)
 
         # Internal param used for speed
         self._last_temperature = 0
@@ -412,7 +420,7 @@ class h3p :
                     self._fit_sucess = False
                     #tip = "\n        This generally happens when the line width (sigma) and/or the wavelength scale is off."
                     tip = ''
-                    logging.error('🚨  Fit failed to converge - solution is numerially unstable ') # + msg + tip)
+                    logging.error('Fit failed to converge - solution is numerially unstable ') # + msg + tip)
                     if (verbose) : logging.error('In this instance: {msg}'.format(msg = msg))
                     return np.full(len(self.wavelength), 0)
 
@@ -475,7 +483,7 @@ class h3p :
         elif (self.vars['temperature'] >= 1800 and self.vars['temperature'] < 5000) :
             coeffs = [-55.7672, 0.0162530, -7.68583e-6, 1.98412e-9, -2.68044e-13, 1.47026e-17]
         else :
-            logging.error('🌡️  ' + str(self.vars['temperature']) + ' K is outside the allowed range 30 ≤ T ≤ 5000')
+            logging.error( str(self.vars['temperature']) + ' K is outside the allowed range 30 < T < 5000')
             return False
 
         logE = 0.0
@@ -514,16 +522,15 @@ class h3p :
 
         nl = "\n"
         txt  = ' Spectrum parameters:' + nl
-        txt += '         Temperature    = {ds:0.1f} ± {ed:0.1f} [K]'.format(ds = self.vars['temperature'], ed = self.errors['temperature']) + nl
-        txt += '         Column density = {ds:0.2E} ± {ed:0.2E} [m-2]'.format(ds = self.vars['density'], ed = self.errors['density']) +  nl
+        txt += '         Temperature    = {ds:0.1f} +/- {ed:0.1f} [K]'.format(ds = self.vars['temperature'], ed = self.errors['temperature']) + nl
+        txt += '         Column density = {ds:0.2E} +/-  {ed:0.2E} [m-2]'.format(ds = self.vars['density'], ed = self.errors['density']) +  nl
         txt += '         ------------------------------' + nl
         vkeys = sorted(self.vars.keys())
         for key in vkeys :
             if (key in ['temperature', 'density']) : continue
-            #txt += '         ' + key + ' = ' + str(self.vars[key]) + ' ± ' + str(self.errors[key]) + nl
             if ( self.errors[key] == 0 ) :
                 txt += '         {ea} = {ds:0.2E}'.format(ea = key, ds = self.vars[key]) + nl
-            else : txt += '         {ea} = {ds:0.2E} ± {ed:0.2E}'.format(ea = key, ds = self.vars[key], ed=self.errors[key]) +  nl
+            else : txt += '         {ea} = {ds:0.2E} +/- {ed:0.2E}'.format(ea = key, ds = self.vars[key], ed=self.errors[key]) +  nl
 
         if (verbose == True) : logging.info(txt)
         return self.vars, self.errors
@@ -605,7 +612,7 @@ class h3p :
 
         # Log the guesses
         if (verbose) :
-            logging.info('Estimated offset =  {ds:0.2E} μm'.format(ds = offset_guess))
+            logging.info('Estimated offset =  {ds:0.2E} microns'.format(ds = offset_guess))
 
         # Feed the guesses back into the model
         self.set(offset = offset_guess)
@@ -660,6 +667,40 @@ class h3p :
         # Add the noise to the model
         return ( model + noise )
     
+    
+    
+    
+class h2(h3p) : 
+
+    def __init__(self, line_list_file = '', **kwargs):
+
+        # Provide the opportunity to use another line list
+        if (line_list_file == '') :
+            self.line_list_file = os.path.join(os.path.dirname(__file__), 'data/h2_line_list_roueff_2019_subset.txt')
+        else : self.line_list_file = line_list_file
+
+        # Set up the required parameters
+        self.startup()
+
+        # Parse any potential input
+        self.parse_kwargs(kwargs)
+
+
+    # Simple polynomial fit to the Roueff 2019 partiation function on ExoMol
+    def Q_constants(self) :
+        return [1.8141538490481226e-06, 0.021686851296966323, 1.0748323788171947]
+    
+    def Q(self, **kwargs) :
+        self.parse_kwargs(kwargs)
+
+        consts = self.Q_constants() 
+        Q = consts[0] * self.vars['temperature']**2 + consts[1] * self.vars['temperature'] + consts[2]
+        return Q
+
+    def dQdT(self) : 
+        consts = self.Q_constants() 
+        dQdT = 0.5 * consts[0] * self.vars['temperature'] + consts[1]  # * self.vars['temperature'] + consts[2]
+        
     
     
         
