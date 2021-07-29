@@ -1,6 +1,6 @@
 # h3ppy 😁
 
-A python package for modelling and fitting H<sub>3</sub><sup>+</sup> spectra. Great! 
+A python package for modelling and fitting H<sub>3</sub><sup>+</sup> and H<sub>2</sub> spectra, pronounced heppy (perhaps). Great! 
 
 ## Install via pip
 ```
@@ -10,6 +10,22 @@ Or to upgrade to the latest greatest version:
 ```
 pip3 install h3ppy --upgrade
 ```
+
+## Table of content
+
+  * [Generate a model H<sub>3</sub><sup>+</sup> spectrum](#generate-a-model-h-sub-3--sub--sup----sup--spectrum)
+  * [Fitting observed spectra](#fitting-observed-spectra)
+- [Real world (universe) examples](#real-world--universe--examples)
+  * [Example 1: UKIRT CGS4 Uranus spectrum](#example-1--ukirt-cgs4-uranus-spectrum)
+  * [Example 2: Keck II NIRSPEC spectrum of Jupiter's aurora](#example-2--keck-ii-nirspec-spectrum-of-jupiter-s-aurora)
+    + [Fitting more advanced polynomial expressions](#fitting-more-advanced-polynomial-expressions)
+  * [Example 3: Modelling the H<sub>2</sub> spectrum](#example-3--modelling-the-h-sub-2--sub--spectrum)
+- [Input parameters](#input-parameters)
+    + [The line width](#the-line-width)
+    + [The parameters of a spectrum](#the-parameters-of-a-spectrum)
+    + [Using different H<sub>3</sub><sup>+</sup> line data](#using-different-h-sub-3--sub--sup----sup--line-data)
+- [Data resources](#data-resources)
+
 
 ## Generate a model H<sub>3</sub><sup>+</sup> spectrum 
 
@@ -292,6 +308,48 @@ So we have a decent fit to the NIRSPEC data above. However, `h3ppy` is capable o
 
 <!-- The James Webb Space Telescope (JWST) is the most powerful and expensive telescope ever contorted. Once launched and in orbit it will be an amazing tool with which to observe H<sub>3</sub><sup>+</sup> through the solar system and beyond. The (NIRSPEC)[https://www.jwst.nasa.gov/content/observatory/instruments/nirspec.html] instruments provides spectra capabilities in the 1 to 5 μm range, which overlaps nicely with the brightest H<sub>3</sub><sup>+</sup> emission lines. The (JWST Exposure Time Calculator)[https://jwst.etc.stsci.edu/] is a tool used for generating signal-to-noise predictions for a given set of -->
 
+## Example 3: Modelling the H<sub>2</sub> spectrum
+
+As of `h3ppy` version 0.3.0, there's the functionality to model the quadropole H<sub>2</sub> spectrum. The `h2` class is functionally identical to the `h3p` class (it's inherited from it), so works in the same way.
+
+```python
+import h3ppy
+import matplotlib.pyplot as plt
+import numpy as np
+
+# Instrument resolution
+R = 300
+
+# Temperature of the thermosphere
+T = 900
+
+# Set up the H3+ model
+h3p = h3ppy.h3p()
+h3p.set(temperature = T, density = 2e15, R = R)
+wave = h3p.wavegen(1.8, 4.2, 1000)
+
+# Set up the H2 model
+amagat = 2.76e25
+h2 = h3ppy.h2()
+h2.set(temperature = T, density = amagat, R = R, wavelength = wave)
+
+# Generate models
+model_h3p = h3p.model()
+model_h2  = h2.model()
+
+# Plot the result
+fig, ax = plt.subplots()
+ax.plot(wave, model_h3p * 1e6, label = 'H$_3^+$ model')
+ax.plot(wave, model_h2 * 1e6, label = 'H$_2$ model')
+ax.set(ylabel = h3p.ylabel(prefix = '$\mu$'), xlabel = h3p.xlabel())
+ax.legend(frameon = False)
+plt.save('img/h2_h3p_spectrum.png')
+
+```
+Which looks like: 
+<p align="center"> 
+<img src="img/h2_h3p_spectrum.png">
+</p>
 
 
 # Input parameters
@@ -313,7 +371,7 @@ The `set()`, `model()`, and `fit()` methods accepts the following inputs:
 
 The parameters with `_n` suffix indicates that they are the nth polynomial constant. For example, if we want use the following function to describe the sigma:
 ```
-sigma = sigma_0 + sigma-1 * wavelength + sigma_2 * wavelength^2
+sigma = sigma_0 + sigma_1 * wavelength + sigma_2 * wavelength^2
 ```
 then we need to specify the following: 
 ```python
