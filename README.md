@@ -18,7 +18,6 @@ pip3 install h3ppy --upgrade
 - [Real world (universe) examples](#real-world--universe--examples)
   * [Example 1: UKIRT CGS4 Uranus spectrum](#example-1--ukirt-cgs4-uranus-spectrum)
   * [Example 2: Keck II NIRSPEC spectrum of Jupiter's aurora](#example-2--keck-ii-nirspec-spectrum-of-jupiter-s-aurora)
-    + [Fitting more advanced polynomial expressions](#fitting-more-advanced-polynomial-expressions)
   * [Example 3: Modelling the H<sub>2</sub> spectrum](#example-3--modelling-the-h-sub-2--sub--spectrum)
 - [Input parameters](#input-parameters)
     + [The line width](#the-line-width)
