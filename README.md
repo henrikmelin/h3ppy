@@ -298,10 +298,10 @@ And looks like:
 <img src="img/nirspec_jupiter_fit.png">
 </p>
 
+<!-- 
 ### Fitting more advanced polynomial expressions
-
 So we have a decent fit to the NIRSPEC data above. However, `h3ppy` is capable of fitting polynomial expressions to the sigma (line-width), wavelength offset, and background. In the example below, we will re-fit the Keck data using more complex expressions for these parameters to see if we can improve the fit by increasing the complexity of the spectral fit. 
-
+-->
 
 
 <!-- ## Example 3: James Webb Space Telescope - NIRSpec proposals -->
@@ -418,3 +418,5 @@ Note that the reader will skip the first line of the line list file.
 
 * The H<sub>3</sub><sup>+</sup> line list from [Neale et al. (1996)](https://ui.adsabs.harvard.edu/abs/1996ApJ...464..516N/abstract) - this data is available for download on the [Exo Mol website](http://www.exomol.com/data/molecules/H3_p/1H3_p/NMT/).
 * The H<sub>3</sub><sup>+</sup> partition function (Q) and total emission (E) from [Miller et al. (2013)](https://ui.adsabs.harvard.edu/abs/2013JPCA..117.9770M/abstract).
+* The H<sub>2</sub> line list and partition functioin from [Roueff et al. (2019)](https://ui.adsabs.harvard.edu/abs/2019A%26A...630A..58R/abstract).
+
