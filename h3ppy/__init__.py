@@ -94,19 +94,12 @@ class h3p :
 
         Q = self.Q()
 
-        self.line_intensity = np.zeros(len(self.line_data['gw']))
-        for i in range(len(self.line_data['gw'])) :
-
-            if (1e4/self.line_data['wl'][i] > 0.9 * np.min(self.wavelength) and 1e4/self.line_data['wl'][i] < 1.1 * np.max(self.wavelength)) :
-
-                exponent   = ( -1.0 * self.line_data['wu'][i] *  self.h *  self.c * 100 ) / ( self.k * self.vars['temperature'])
-
-                intensity  = self.line_data['gw'][i] * (2.0 * self.line_data['Ju'][i] + 1)
-                intensity *=  self.h *  self.c * 100 * self.line_data['wl'][i]
-                intensity *= np.exp(exponent) * self.line_data['EA'][i]  / ( Q * 4.0 * np.pi )
-
-                self.line_intensity[i] = intensity
-
+        exponent   = ( -1.0 * self.line_data['wu'] *  self.h *  self.c * 100.0 ) / ( self.k * self.vars['temperature'])
+        intensity  = self.line_data['gw'] * (2.0 * self.line_data['Ju'] + 1)
+        intensity *=  self.h *  self.c * 100.0 * self.line_data['wl']
+        intensity *= np.exp(exponent) * self.line_data['EA']  / ( Q * 4.0 * np.pi )
+        
+        self.line_intensity = intensity
         self._last_temperature = self.vars['temperature']
 
         return self.line_intensity
@@ -196,7 +189,7 @@ class h3p :
         vardQdT = 0.0
         for i, const in enumerate(self.Q_constants()) :
             if (i == 0) : continue
-            vardQdT += np.float(i) * const * np.power(self.vars['temperature'], float(i - 1))
+            vardQdT += float(i) * const * np.power(self.vars['temperature'], float(i - 1))
         return vardQdT
 
     # The tempoerature derivative of the spectral function
@@ -574,7 +567,7 @@ class h3p :
             logging.error('The model generated only zeros - cannot make a guess at any parameter')
             return model
 
-        intensity_factor = np.nanmax(self.data) / np.nanmax(model)
+        intensity_factor = (np.nanmax(self.data) - np.nanmin(self.data)) / np.nanmax(model)
         density_guess = self.vars['density'] * intensity_factor
 
         if (verbose) :
@@ -700,7 +693,7 @@ class h2(h3p) :
     def dQdT(self) : 
         consts = self.Q_constants() 
         dQdT = 0.5 * consts[0] * self.vars['temperature'] + consts[1]  # * self.vars['temperature'] + consts[2]
-        
+        return dQdT    
     
     
         

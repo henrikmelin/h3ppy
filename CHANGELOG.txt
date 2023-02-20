@@ -1,3 +1,9 @@
+## 0.3.1
+* Fixed H2 dQdT bug
+* Optimised intensity calculation (calculate_line_intensities)
+* np.float removed as it is deprecated, changed to float()
+* h3p.guess_density made more robust() - hopefully!
+
 ## 0.3.0
 
 * Added experimental support for modelling H2 emission lines
