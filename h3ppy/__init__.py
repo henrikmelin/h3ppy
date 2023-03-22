@@ -319,7 +319,15 @@ class h3p :
 
             if key in ok_keys :
                 self.vars[key] = float(value)
-            elif (key == 'wavelength') : self.wavelength = np.array(value, dtype = self.dtype)
+            # Allow the shortcut T for temperature
+            elif (key == 'T') : 
+                self.vars['temperature'] = float(value)
+            # Allow the shortcut N for density
+            elif (key == 'N') : 
+                self.vars['density'] = float(value)
+            # Allow shorcuts wave or w for the wavelength
+            elif (key == 'wavelength' or key == 'wave' or key == 'w') : 
+                self.wavelength = np.array(value, dtype = self.dtype)
             elif (key == 'data') : self.data = np.array(value, dtype = self.dtype)
             elif (key in ['nsigma', 'noffset', 'nbackground']) :
                 pass
