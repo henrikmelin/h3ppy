@@ -356,10 +356,10 @@ Which looks like:
 The `set()`, `model()`, and `fit()` methods accepts the following inputs:
 
 
-* `wavelength` - the wavelength scale on which to produce the model
+* `wavelength`, `wave`, `w` - the wavelength scale on which to produce the model.  
 * `data` - the observed H<sub>3</sub><sup>+</sup> spectrum
-* `temperature` - the intensity of the H<sub>3</sub><sup>+</sup> spectral lines are an exponential function of the temperature. Typical ranges for the ionosphere's of the giant planets are 400 (Saturn) to 1500 K (Jupiter).
-* `density` - the column integrated H<sub>3</sub><sup>+</sup> density, this is the number of ions along the line of sight vector.
+* `temperature`, `T` - the intensity of the H<sub>3</sub><sup>+</sup> spectral lines are an exponential function of the temperature. Typical ranges for the ionosphere's of the giant planets are 400 (Saturn) to 1500 K (Jupiter). 
+* `density`, `N` - the column integrated H<sub>3</sub><sup>+</sup> density, this is the number of ions along the line of sight vector.
 * `sigma_n` - the _n_th polynomial constant of the spectral line width (sigma)
 * `offset_n` - the _n_th polynomial constant of the wavelength offset from the rest wavelength. Doppler shift and wavelength calibration errors can offset the wavelength scale. 
 * `background_n` - he _n_th polynomial constant of the displacement from the zero intensity level of the spectrum
