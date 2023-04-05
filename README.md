@@ -1,6 +1,6 @@
 # h3ppy 😁
 
-A python package for modelling and fitting H<sub>3</sub><sup>+</sup> and H<sub>2</sub> spectra, pronounced heppy (perhaps). Great! 
+A python package for modelling and fitting H<sub>3</sub><sup>+</sup> and H<sub>2</sub> spectra, pronounced "happy". Great! 
 
 ## Install via pip
 ```
