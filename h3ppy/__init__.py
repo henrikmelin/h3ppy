@@ -6,7 +6,6 @@ class h3p :
 
     def __init__(self, line_list_file = '', **kwargs):
 
-
         # Provide the opportunity to use another line list
         if (line_list_file == '') :
             self.line_list_file = os.path.join(os.path.dirname(__file__), 'data/h3p_line_list_neale_1996_subset.txt')
@@ -17,7 +16,6 @@ class h3p :
 
         # Parse any potential input
         self.parse_kwargs(kwargs)
-
 
     def startup(self) : 
 
@@ -79,7 +77,7 @@ class h3p :
         return ret
 
 
-    def calculate_line_intensities(self) :
+    def calculate_line_intensities(self, **kwargs) :
         '''
             Calculate the individual line intensities at a particlar temperature.
 
@@ -88,6 +86,9 @@ class h3p :
                                  4Pi*Q
 
         '''
+        
+        self.parse_kwargs(kwargs)
+
         # Don't recalculate if we've just done it
         if (self._last_temperature == self.vars['temperature']) :
             return self.line_intensity
@@ -106,7 +107,7 @@ class h3p :
 
     def model(self, **kwargs) :
         '''
-            Generate a H3+ spectral model based on the provided parameters.
+            Generate a spectral model based on the provided parameters.
 
         '''
         self.parse_kwargs(kwargs)
@@ -127,6 +128,23 @@ class h3p :
         self.sigma      = self.poly_fn('sigma', self.nsigma)
         self.offset     = self.poly_fn('offset', self.noffset)
         self.background = self.poly_fn('background', self.nbackground)
+
+        # Calculate the contribution for all lines in the line-list at each wavelength
+        for i, w in enumerate(self.wavelength) : 
+            exponent     = -1.0 * np.power(self.wavelength[i] - ( 1e4/self.line_data['wl'] + self.offset[i]), 2) / (2.0 * np.power(self.sigma[i], 2))
+            self.line_contributions = line_intensity / ( self.sigma[i] * np.sqrt(2 * np.pi) ) * np.exp(exponent)
+
+            # The sum of all the individual contributions is the spectrun at each spectral pixel
+
+            # We can process the spectrum by adding additional terms,
+            # used mainly for the derivaties of the spectral function.
+            if (process_fn == '') : spectrum[i] = np.sum(self.line_contributions)
+            else : spectrum[i] = np.sum(getattr(self, process_fn)(i))
+
+        return spectrum
+
+        # How does this change the derivatives? 
+
 
         relevant_range = np.max(self.sigma) * self.sigma_limit
 
@@ -196,16 +214,14 @@ class h3p :
     def dIdT(self) :
 
         line_intensity = self.calculate_line_intensities()
-        dIidT          = np.zeros(len(self.line_data['wl']))
 
         const1 =  self.h *  self.c * 100 / ( np.power(self.vars['temperature'], 2) *  self.k )
         Q      = self.Q()
         dQdT   = self.dQdT()
 
-        # Iterate over the H3+ spectral lines
-        for k in np.arange(len(self.line_data['wl'])) :
-            dIidT[k]  = line_intensity[k] * const1 * self.line_data['wu'][k]
-            dIidT[k] -= line_intensity[k] * dQdT     / Q
+        # Caulcate the derivative for each transtion in the line-list
+        dIidT  = line_intensity * const1 * self.line_data['wu']
+        dIidT -= line_intensity * dQdT / Q
 
         return self.render_spectrum(dIidT) * self.vars['density']
 
@@ -218,12 +234,12 @@ class h3p :
         return self.render_spectrum(line_intensity, process_fn = 'dIdo_process') * self.vars['density']
 
     # Alter the spectral function for dIdo()
-    def dIdo_process(self, i, k) :
+    def dIdo_process(self, i) :
 
-        numerator_deriv = 2.0 * ( self.wavelength[i] - (1e4/self.line_data['wl'][k] + self.offset[i]) )
+        numerator_deriv = 2.0 * ( self.wavelength[i] - (1e4/self.line_data['wl'] + self.offset[i]) )
         dIdc            = 1.0 * np.power(self.wavelength[i], self.offset_index)
 
-        return self.intensity_ik * numerator_deriv / (2.0 * np.power(self.sigma[i], 2)) * dIdc
+        return self.line_contributions * numerator_deriv / (2.0 * np.power(self.sigma[i], 2)) * dIdc
 
     # The line width derivative of the spectral function I
     def dIds(self, index) :
@@ -233,10 +249,10 @@ class h3p :
         return  self.render_spectrum(line_intensity, process_fn = 'dIds_process') * self.vars['density']
 
     # Alter the spectral function for dIds()
-    def dIds_process(self, i, k) :
+    def dIds_process(self, i) :
 
         # The exponent in the spectral function
-        exponent_numerator  = -1.0 * np.power(self.wavelength[i] - ( 1e4/self.line_data['wl'][k] + self.offset[i]), 2)
+        exponent_numerator  = -1.0 * np.power(self.wavelength[i] - ( 1e4/self.line_data['wl'] + self.offset[i]), 2)
 
         # The derivative of the exponent denominator
         dIds = -2.0 * exponent_numerator / (2.0 * np.power(self.sigma[i], 3))
@@ -244,7 +260,7 @@ class h3p :
         # The derivative of the sigma function polynmomial functions
         dsdc = np.power(self.wavelength[i], self.sigma_index)
 
-        return ( self.intensity_ik * dIds - 1.0 * self.intensity_ik / self.sigma[i]) * dsdc
+        return ( self.line_contributions * dIds - 1.0 * self.line_contributions / self.sigma[i]) * dsdc
 
     # The derivative of the background polynomial constants
     def dIdb(self, index) :
@@ -279,7 +295,7 @@ class h3p :
                 key = var + '_' + str(i)
                 self.vars[key] = 0.0
 
-    # Parse the kewyord input
+    # Parse the keyword input
     def parse_kwargs(self, kwargs) :
 
         # Prioritise processing the n variables, that deterime the number of
@@ -460,6 +476,18 @@ class h3p :
         return self.model()
 
 
+    def reset_params(self) : 
+        '''
+        Reset all the parameters to sensible values. 
+        '''
+        for key in self.vars.keys() : 
+            self.var[key] = 0.0
+
+        self.vars['temperature']   = 1000
+        self.vars['density']       = 1.0
+
+
+
     def wavegen(self, wstart, wend, wnbr) :
         '''
         Generate a wavelength scale using start and end wavelengths and the number of wavelength elements.
@@ -623,12 +651,12 @@ class h3p :
     def check_inputs(self) :
 
         # We need to have some data to guess on
-        if (len(self.data) == 1) :
+        if (self.data.shape[0] < 2) :
             logging.error('ERROR - Data array is required at this stage! E.g. h3p.fit(data = uranus)')
             return False
 
         # Santiy check the inputs
-        if (len(self.data) != len(self.wavelength)) :
+        if (self.data.shape[0] != self.wavelength.shape[0]) :
             logging.error('ERROR - The wavelength array has a different length to the data array! ({nd} and {nw})').format(nd = len(self.data), nw = len(self.wavelength))
             return False
 
@@ -657,16 +685,16 @@ class h3p :
         model = self.model()
 
         # Calculate the noise scaling depending on the input
-        if (snr > 0) : scale = np.max(self.model) / snr
+        if (snr > 0) : scale = np.max(model) / snr / 2.0
         elif (absolute > 0) : scale = absolute
         elif (percent > 0) : scale = np.max(model) * percent / 100.0
         else : scale = 0.1 * np.max(model)
 
         # Generate the noise        
-        noise = np.random.normal(size = self.wavelength.size, scale = scale) 
+        noise = np.random.normal(size = self.wavelength.size, scale = scale).flatten()
 
         # Add the noise to the model
-        return ( model + noise )
+        return model + noise 
     
     
     
@@ -689,7 +717,7 @@ class h2(h3p) :
 
     # Simple polynomial fit to the Roueff 2019 partiation function on ExoMol
     def Q_constants(self) :
-        return [1.8141538490481226e-06, 0.021686851296966323, 1.0748323788171947]
+        return [ 9.97306739e-10, -1.28235186e-06,  2.43332479e-02,  5.47921938e-01]
     
     def Q(self, **kwargs) :
         self.parse_kwargs(kwargs)
@@ -703,5 +731,8 @@ class h2(h3p) :
         dQdT = 0.5 * consts[0] * self.vars['temperature'] + consts[1]  # * self.vars['temperature'] + consts[2]
         return dQdT    
     
-    
-        
+    def total_emission(self, **kwargs) : 
+        self.parse_kwargs(kwargs)
+
+        # Return the wavelength integrated radiance
+        return np.sum(self.calculate_line_intensities()) * self.vars['density']

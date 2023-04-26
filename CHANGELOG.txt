@@ -1,3 +1,8 @@
+## 0.4.0
+* Major optimisation of how the spectra is calculated, removed multiple for loops, which should speed things up significantly. h3ppy now calculates the intensities for all the lines in the line list, rather than just a subset.
+* Updated the H2 partition function (Q) fit, valid between 250 and 2000 K
+* Included the H2 total emission as just the sum of the individual line intensities
+
 ## 0.3.2
 * Fixed problems with the H2 line list data
 * Now shortcuts are introduced for setting variables: 
