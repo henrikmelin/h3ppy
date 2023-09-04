@@ -1,3 +1,6 @@
+## 0.4.3 
+Another attempt at fixing missing line lists...
+
 ## 0.4.2
 Fixed H2 partition function bug added missing line lists. 
 

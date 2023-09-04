@@ -6,6 +6,7 @@ class h3p :
 
     def __init__(self, line_list_file = '', **kwargs):
 
+        print(os.path.join(os.path.dirname(__file__)))
 
         # Provide the opportunity to use another line list
         if (line_list_file == '') :
