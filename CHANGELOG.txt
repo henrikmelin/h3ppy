@@ -1,4 +1,4 @@
-## 0.4.3 
+## 0.4.3+
 Another attempt at fixing missing line lists...
 
 ## 0.4.2

@@ -1,2 +1,1 @@
-include h3ppy *.py
-include h3ppy/data *.txt
+recursive-include h3ppy *
