@@ -6,6 +6,7 @@ class h3p :
 
     def __init__(self, line_list_file = '', **kwargs):
 
+
         # Provide the opportunity to use another line list
         if (line_list_file == '') :
             self.line_list_file = os.path.join(os.path.dirname(__file__), 'data/h3p_line_list_neale_1996_subset.txt')
@@ -202,7 +203,9 @@ class h3p :
         return Q;
 
     # The temperature derivative of the partition function.
-    def dQdT(self) :
+    def dQdT(self, **kwargs) :
+    
+        self.parse_kwargs(kwargs)
 
         vardQdT = 0.0
         for i, const in enumerate(self.Q_constants()) :
@@ -335,7 +338,7 @@ class h3p :
 
             if key in ok_keys :
                 self.vars[key] = float(value)
-            # Allow the shortcut T for temperature
+            # Allow the shortcut T for temperature
             elif (key == 'T') : 
                 self.vars['temperature'] = float(value)
             # Allow the shortcut N for density
@@ -481,7 +484,7 @@ class h3p :
         Reset all the parameters to sensible values. 
         '''
         for key in self.vars.keys() : 
-            self.var[key] = 0.0
+            self.vars[key] = 0.0
 
         self.vars['temperature']   = 1000
         self.vars['density']       = 1.0
@@ -722,17 +725,27 @@ class h2(h3p) :
     def Q(self, **kwargs) :
         self.parse_kwargs(kwargs)
 
-        consts = self.Q_constants() 
-        Q = consts[0] * self.vars['temperature']**2 + consts[1] * self.vars['temperature'] + consts[2]
-        return Q
+        consts = self.Q_constants()         
+        Qfn    = np.poly1d(consts)
 
-    def dQdT(self) : 
+        return Qfn(self.vars['temperature'])
+
+    def dQdT(self, **kwargs) : 	
+        self.parse_kwargs(kwargs)
         consts = self.Q_constants() 
-        dQdT = 0.5 * consts[0] * self.vars['temperature'] + consts[1]  # * self.vars['temperature'] + consts[2]
-        return dQdT    
+
+        Qfn    = np.poly1d(consts)
+        dQdTfn = Qfn.deriv()
+
+        return dQdTfn(self.vars['temperature']) 
     
     def total_emission(self, **kwargs) : 
         self.parse_kwargs(kwargs)
 
         # Return the wavelength integrated radiance
         return np.sum(self.calculate_line_intensities()) * self.vars['density']
+        
+        
+        
+        
+        

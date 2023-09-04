@@ -26,7 +26,7 @@ from setuptools import setup, find_packages
 
 setup(
     name             = 'h3ppy',
-    version          = '0.4.0',
+    version          = '0.4.2',
     author           = 'Henrik Melin',
     author_email     = 'h.melin@gmail.com',
     description      = 'Model and fit H3+ and H2 spectra',
@@ -36,7 +36,7 @@ setup(
     install_requires = ['numpy'], 
     package_dir      = {"": "."},
     package_data     = {'h3ppy': ['h3ppy/data/h3p_line_list_neale_1996_subset.txt', 'h2_line_list_roueff_2019_subset.txt']},
-    include_package_data=True,    
+    include_package_data = True,    
     long_description = """
 # h3ppy
 A python package for modelling and fitting H<sub>3</sub><sup>+</sup> and H<sub>2</sub> spectra

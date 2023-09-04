@@ -1,3 +1,6 @@
+## 0.4.2
+Fixed H2 partition function bug added missing line lists. 
+
 ## 0.4.0
 * Major optimisation of how the spectra is calculated, removed multiple for loops, which should speed things up significantly. h3ppy now calculates the intensities for all the lines in the line list, rather than just a subset.
 * Updated the H2 partition function (Q) fit, valid between 250 and 2000 K
