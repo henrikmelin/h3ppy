@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.join(os.path.split(__file__)[0], '..'))
 project = 'h3ppy'
 copyright = f'2022–{datetime.datetime.now():%Y}, Oliver King'
 author = 'Henrik Melin'
-version = 0
-release = 0
+version = '0.4.3'
+release = '0.4.3'
 language = 'en'
 
 # -- General configuration ---------------------------------------------------
