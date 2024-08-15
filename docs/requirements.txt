@@ -1,1 +1,2 @@
-numpy
+sphinx~=5.3
+sphinx_rtd_theme~=1.1

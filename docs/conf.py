@@ -20,6 +20,7 @@ copyright = f'2022–{datetime.datetime.now():%Y}, Oliver King'
 author = 'Henrik Melin'
 version = 0
 release = 0
+language = 'en'
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
