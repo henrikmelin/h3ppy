@@ -8,9 +8,8 @@ import sys
 
 import sphinx_rtd_theme
 
-sys.path.insert(0, os.path.join(os.path.split(__file__)[0], '..'))
-#import planetmapper
-#from planetmapper.common import __version__
+#sys.path.insert(0, os.path.join(os.path.split(__file__)[0], '..'))
+sys.path.insert(0, os.path.abspath('../h3ppy/'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
