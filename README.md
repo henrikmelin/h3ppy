@@ -1,6 +1,13 @@
+[![PyPI Version](https://img.shields.io/pypi/v/h3ppy?label=PyPI)](https://pypi.org/project/h3ppy/)
+[![Documentation Status](https://readthedocs.org/projects/h3ppy/badge/?version=latest)](https://h3ppy.readthedocs.io/en/latest/?badge=latest)
+
 # h3ppy 😁
 
 A python package for modelling and fitting H<sub>3</sub><sup>+</sup> and H<sub>2</sub> spectra, pronounced "happy". Great! 
+
+## Documentation
+
+Detailed documentation and API reference can be found at [h3ppy.readthedocs.io](https://h3ppy.readthedocs.io/en/latest/)
 
 ## Install via pip
 ```
