@@ -19,7 +19,7 @@ bibliography: paper.bib
 
 # Summary
 
-`h3ppy` is an open source Python package for modelling and fitting the spectrum of the tri-hydrogen cation H$_3^+$. This molecular ion is a main component of the charged particle ionospheres of the giant planets (Jupiter, Saturn, Uranus, and Neptune), and observations of these systems span over 30 years [@Miller:2020], using facilities such as ground-based telescopes (e.g. Keck, Very Large Telescope, Infrared Telescope Facility), orbital spacecraft (e.g. Cassini and Juno), and space-based observatories (the James Webb Space Telescope). By fitting the H$_3^+$ spectra, physical properties can be determined: 1) the temperature of the upper atmosphere and 2) the column integrated density of H$_3^+$. `h3ppy` provides the tools to both model the H$_3^+$ spectrum and perform these spectral retrievals. 
+`h3ppy` is an open source Python package for modelling and fitting the spectrum of the tri-hydrogen cation H$_3^+$. This molecular ion is a main component of the charged particle ionospheres of the giant planets (Jupiter, Saturn, Uranus, and Neptune), and observations of these systems span over 30 years [@Miller:2020], using facilities such as ground-based telescopes (e.g. Keck, Very Large Telescope, Infrared Telescope Facility), orbital spacecraft (e.g. Cassini and Juno), and space-based observatories (James Webb Space Telescope). By fitting the H$_3^+$ spectra, physical properties can be determined: 1) the temperature of the upper atmosphere and 2) the column integrated density of H$_3^+$. The spatial and temporal distribution of these parameters reveal the processes and dynamics that govern the upper atmopsheres of the giant planets. `h3ppy` provides the tools to both model the H$_3^+$ spectrum and perform these spectral retrievals. 
 
 # Statement of need
 
@@ -27,7 +27,7 @@ bibliography: paper.bib
 
 For a given temperature and H$_3^+$ density, the code calculates the radiance of each individual H$_3^+$ transition, then distributes these in wavelength-space by giving them with Gaussian line-shapes. The sum of all the individual Gaussian lines then make up the model spectrum. By making use of `numpy` array features, there are significant computational gains, making the code very fast. The fitting procedure uses a hard-coded least squares approach, and the only dependency is `numpy`. `h3ppy` implements the H$_3^+$ line list of @Neale:1996 and the partition function of @Miller:2013. 
 
-Additionally, by making a `h3ppy` child class, the core functionality can also be used for other molecular species, and and example on how to use `h3ppy` to model and fit molecular hydrogen spectra (H$_2$) is provided. 
+By making a `h3ppy` child class, the core functionality can also be used for other molecular species, and and example on how to use `h3ppy` to model and fit molecular hydrogen spectra (H$_2$) is provided. 
 
 The `h3ppy` code has already been used in published studies, characterising the ionosphere of Uranus [@Thomas:2023] and Jupiter [Melin:2024]. 
 
