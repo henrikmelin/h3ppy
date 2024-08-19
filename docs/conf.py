@@ -30,7 +30,11 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.intersphinx',
     'sphinx_rtd_theme',
+    'sphinx.ext.mathjax',
 ]
+
+mathjax_path = "https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.5/MathJax.js?config=TeX-MML-AM_CHTML"
+
 
 templates_path = ['_templates']
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
@@ -49,12 +53,13 @@ autodoc_member_order = 'bysource'
 # autodoc_typehints_description_target = 'documented_params'
 autodoc_inherit_docstrings = False
 
+pygments_style = 'sphinx'
 
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
 html_theme = 'sphinx_rtd_theme'
-html_static_path = ['_static']
+html_static_path = []
 # html_extra_path = ['google065a4d650d8ee82d.html']
 #html_logo = 'images/logo_rtd_transparent.png'
 html_theme_options = {
