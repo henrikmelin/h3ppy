@@ -1,17 +1,26 @@
-"""
-
-
-
-    
-"""
-
-
 import os
 import numpy as np
 import logging
 
 class h3p :
+    """
+        Setting model parameters
+        ------------------------
 
+        The `set()`, `model()`, and `fit()` methods accepts the following inputs:
+
+        * `wavelength`, `wave`, `w` - the wavelength scale on which to produce the model.  
+        * `data` - the observed H:math:`H_3^+` spectrum
+        * `temperature`, `T` - the intensity of the :math:`H_3^+` spectral lines are an exponential function of the temperature. Typical ranges for the ionosphere's of the giant planets are 400 (Saturn) to 1500 K (Jupiter). 
+        * `density`, `N` - the column integrated :math:`H_3^+` density, this is the number of ions along the line of sight vector.
+        * `sigma_n` - the nth polynomial constant of the spectral line width (sigma)
+        * `offset_n` - the nth polynomial constant of the wavelength offset from the rest wavelength. Doppler shift and wavelength calibration errors can offset the wavelength scale. 
+        * `background_n` - the nth polynomial constant of the displacement from the zero intensity level of the spectrum
+        * `nsigma` - the number of polynomial constant used for the sigma.
+        * `noffset` - the number of polynomial constant used for the offset.
+        * `nbackground` - the number of polynomial constant used for the background.
+
+    """
     def __init__(self, line_list_file = '', **kwargs):
         """
             Create a `h3p` object.
@@ -137,9 +146,9 @@ class h3p :
         self._last_temperature = self.vars['temperature']
 
         return self.line_intensity
-
+    
     def model(self, **kwargs) :
-        '''
+        """
             Generate a model :math:`H_3^+` spectrum given a set of parameters. 
 
             .. hint:: 
@@ -149,8 +158,9 @@ class h3p :
                 **kwargs: Physical parameters to pass to the model calculation. 
             
             Returns: 
-                A spectrum of units of spectral radiance (:math:`Wm^{-2}sr^{-1}\mu m^{-1}`). 
-        '''
+                A spectrum of units of spectral radiance (:math:`W m^{-2} sr^{-1} \\mu m^{-1}`). 
+        """
+
         self.parse_kwargs(kwargs)
 
         line_intensity = self.calculate_line_intensities()
@@ -161,7 +171,16 @@ class h3p :
 
     # Generate the spectrum
     def render_spectrum(self, line_intensity, extra_fn_multiply = '', process_fn = '', **kwargs) :
+        """
+            Generate a model spectrum from the calculated line intensities. 
 
+            Args: 
+                line_intenisty: The array containing the individual line intensities at a particurlar tempreature. 
+                process_fn: Pass an addition function to the calculation, used for evaluating the derivatives. 
+
+            Returns:
+                The spectrum of :math:`H_3^+` at a particurlar temperature and wavelength range for one molecule. 
+        """
         self.parse_kwargs(kwargs)
 
         spectrum   = np.zeros(len(self.wavelength), dtype = self.dtype)
@@ -183,31 +202,6 @@ class h3p :
             else : spectrum[i] = np.sum(getattr(self, process_fn)(i))
 
         return spectrum
-
-        # How does this change the derivatives? 
-
-
-        relevant_range = np.max(self.sigma) * self.sigma_limit
-
-        # Iterate over the H3+ spectral lines
-        for k in np.arange(len(self.line_data['wl'])) :
-
-            # Only calculate over the wavelength range appropriate for this line
-            relevant_waves = np.argwhere(np.abs(self.wavelength - (1e4/self.line_data['wl'][k] + np.mean(self.offset))) < relevant_range)
-
-            for i in relevant_waves :
-
-                # Evaluate the spectral function for this line and this wavelength
-                exponent     = -1.0 * np.power(self.wavelength[i] - ( 1e4/self.line_data['wl'][k] + self.offset[i]), 2) / (2.0 * np.power(self.sigma[i], 2))
-                self.intensity_ik  = line_intensity[k] / ( self.sigma[i] * np.sqrt(2 * np.pi) ) * np.exp(exponent)
-
-                # We can process the spectrum by adding additional terms,
-                # mainly for the derivaties of the spectral function.
-                if (process_fn == '') : spectrum[i] += self.intensity_ik
-                else : spectrum[i] += getattr(self, process_fn)(i, k)
-
-        return spectrum
-
 
     def Q_constants(self) :
         '''
@@ -281,7 +275,7 @@ class h3p :
 
     def dIdo(self, index) :
         """
-         The wavelength polynomial constants derivative of the spectral function I.
+         The wavelength polynomial constants derivative of the spectral function I. See :ref:`Partial Derivatives` for more details.
         """
         line_intensity = self.calculate_line_intensities()
 
@@ -300,7 +294,7 @@ class h3p :
 
     def dIds(self, index) :
         """
-            The line width derivative of the spectral function I
+            The line width derivative of the spectral function I. See :ref:`Partial Derivatives` for more details.
         """
         line_intensity = self.calculate_line_intensities()
 
@@ -325,13 +319,13 @@ class h3p :
 
     def dIdb(self, index) :
         """
-        The derivative of the background polynomial constants
+        The derivative of the background polynomial constants. See :ref:`Partial Derivatives` for more details.
         """
         return np.power(self.wavelength, index)
 
     def dIdN(self) :
         """
-            The partial derivative of the column density
+            The partial derivative of the column density. See :ref:`Partial Derivatives` for more details.
         """
         line_intensity = self.calculate_line_intensities()
         return self.render_spectrum(line_intensity)
@@ -341,14 +335,14 @@ class h3p :
         Use set() to set the model parameters that you require.
 
         .. code-block:: python
-        
+
             h3p = h3ppy.h3p()
             h3p.set(temperature = 900, density = 1e15)
 
         Args:
                 temperature: The temperature (in :math:`K`).
                 density: The columnn densty (in :math:`m^{-2}`).
-                wavelength: The wavelength scale (in :math:`\mu m`).
+                wavelength: The wavelength scale (in :math:`\\mu m`).
                 R: The spectral resolution (FWHM)
 
         .. hint:: 
@@ -378,7 +372,10 @@ class h3p :
 
     # Parse the keyword input
     def parse_kwargs(self, kwargs) :
-
+        """
+            Parse the required model parameters. See :ref:`Usage` for details. 
+        
+        """
         # Prioritise processing the n variables, that deterime the number of
         # polynomial terms to use for sigma, offset, and backround.
         for key, value in kwargs.items() :
@@ -431,6 +428,22 @@ class h3p :
             else : logging.error('Unknown set of key/values: ' + key + ' = ' + str(value))
 
     def fit(self, params_to_fit = '', verbose = False, niter = 14, **kwargs) :
+        """
+            Fit a :math:`H_3^+` spectrum.
+
+            .. hint:: 
+                The parameters required for this function can also be set using the `set` method. 
+
+            Args: 
+                params_to_fit: Specify the parameters you want to fit, e.g., if you only want to fit temperature and 
+                    density `params_to_fit = ['temperature', 'density']`. By defailt it fits temperature, density, background,
+                    wavelngth offset, and line width. 
+                verbose: Print more detailed information. 
+                niter: How may iterations of the fitting are we going to do.      
+
+            Returns: 
+                The best fit model spectrum to the data in units of spectral radiance (:math:`W m^{-2} sr^{-1} \\mu m^{-1}`). 
+        """
 
         self.parse_kwargs(kwargs)
 
@@ -493,17 +506,7 @@ class h3p :
                     diff =  detABC / detZ
 
                     prev_vars[param] = self.vars[param]
-                    self.vars[param] += diff # * 0.5
-
-#                    if (diff < 0.1 * prev_vars[param]) : self.vars[param] = 0.1 * prev_vars[param]
-#                    elif (diff > 10 * prev_vars[param]) : self.vars[param] = 10 * prev_vars[param]
-
-                    # Dampen the density change
-#                    if (param in ['density', 'temperature', 'sigma-0']) :
-#                        if (self.vars[param] < 0) :
-#                            self.vars[param] = 0.5 * prev_vars[param]
-
-                    #print(self.vars['offset-0'], diff)
+                    self.vars[param] += diff 
 
                     diffs[param] = diff
 
@@ -530,7 +533,7 @@ class h3p :
 
             # This parameterises the level of convergence
             fracs = [ np.abs(diffs[p] / self.vars[p]) for p in self.params_to_fit ]
-            converger = np.mean( fracs )  # self.vars[params_to_fit[0]] /
+            converger = np.mean( fracs ) 
 
             if (converger < self.convergence_limit) : break
             elif (converger > 100) : break
@@ -629,15 +632,19 @@ class h3p :
 
         return temps, h2dens, scalings
 
-    def get_results(self, verbose = True) :
+    def get_results(self, verbose = False) :
         '''
-        Return the results of the spectral fit.
+            Return the results of the spectral fit. Note that if the fit fails, the it returns `(False, False)`.
+
+            Returns:
+                vars: A dictionary containing the best fit parameters
+                errs: A dictionary containing the uncertainty on the best fit parameters
 
         '''
         if (self._fit_sucess == False) : return False, False
 
         nl = "\n"
-        txt  = ' Spectrum parameters:' + nl
+        txt  = ' Fitted parameters:' + nl
         txt += '         Temperature    = {ds:0.1f} +/- {ed:0.1f} [K]'.format(ds = self.vars['temperature'], ed = self.errors['temperature']) + nl
         txt += '         Column density = {ds:0.2E} +/-  {ed:0.2E} [m-2]'.format(ds = self.vars['density'], ed = self.errors['density']) +  nl
         txt += '         ------------------------------' + nl
@@ -649,6 +656,7 @@ class h3p :
             else : txt += '         {ea} = {ds:0.2E} +/- {ed:0.2E}'.format(ea = key, ds = self.vars[key], ed=self.errors[key]) +  nl
 
         if (verbose == True) : logging.info(txt)
+
         return self.vars, self.errors
 
     def print_vars(self) :
@@ -672,14 +680,14 @@ class h3p :
         Returns:
             The LaTeX formatted radiance ylabel for matplotlib.
         '''
-        return label + ' (' + prefix + 'Wm$^{-2}$sr$^{-1}{\mu}$m$^{-1}$)'
+        return label + ' (' + prefix + r'Wm$^{-2}$sr$^{-1}{\mu}$m$^{-1}$)'
 
     def xlabel(self) :
         '''
             Returns: 
                 The LaTeX formatted intesity xlabel for matplotlib.
         '''
-        return 'Wavelength (${\mu}$m)'
+        return r'Wavelength (${\mu}$m)'
 
     def guess_density(self, verbose = True, **kwargs) :
         """
@@ -805,50 +813,3 @@ class h3p :
     
     
     
-class h2(h3p) : 
-
-    def __init__(self, line_list_file = '', **kwargs):
-
-        # Provide the opportunity to use another line list
-        if (line_list_file == '') :
-            self.line_list_file = os.path.join(os.path.dirname(__file__), 'data/h2_line_list_roueff_2019_subset.txt')
-        else : self.line_list_file = line_list_file
-
-        # Set up the required parameters
-        self.startup()
-
-        # Parse any potential input
-        self.parse_kwargs(kwargs)
-
-
-    # Simple polynomial fit to the Roueff 2019 partiation function on ExoMol
-    def Q_constants(self) :
-        return [ 9.97306739e-10, -1.28235186e-06,  2.43332479e-02,  5.47921938e-01]
-    
-    def Q(self, **kwargs) :
-        self.parse_kwargs(kwargs)
-
-        consts = self.Q_constants()         
-        Qfn    = np.poly1d(consts)
-
-        return Qfn(self.vars['temperature'])
-
-    def dQdT(self, **kwargs) : 	
-        self.parse_kwargs(kwargs)
-        consts = self.Q_constants() 
-
-        Qfn    = np.poly1d(consts)
-        dQdTfn = Qfn.deriv()
-
-        return dQdTfn(self.vars['temperature']) 
-    
-    def total_emission(self, **kwargs) : 
-        self.parse_kwargs(kwargs)
-
-        # Return the wavelength integrated radiance
-        return np.sum(self.calculate_line_intensities()) * self.vars['density']
-        
-        
-        
-        
-        
