@@ -9,8 +9,8 @@ import sys
 import sphinx_rtd_theme
 
 #sys.path.insert(0, os.path.join(os.path.split(__file__)[0], '..'))
-sys.path.insert(0, os.path.abspath('../h3ppy/'))
-#sys.path.insert(0, os.path.abspath('../'))
+#sys.path.insert(0, os.path.abspath('../h3ppy/'))
+sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
