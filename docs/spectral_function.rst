@@ -1,11 +1,12 @@
 .. _Spectral Function: 
 
+Spectral Function
+*****************
 
 .. note:: 
     The symbols in these equations are defined on the :ref:`Definition of Symbols` page. 
 
-Spectral Function
-===================================
+
 
 The spectral radiance of :math:`H_3^+` at a particurlar wavelength can be calculated as a sum of guaussians, each representing an indivudial emission line.  
 

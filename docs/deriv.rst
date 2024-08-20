@@ -1,6 +1,6 @@
 .. _Partial Derivatives:
 
-Partial Derivatives of the spectral function
+Partial Derivatives of the Spectral Function
 ********************************************
 
 For completeness, the partial derivatives used to calculate the matricies containing the simultaneous equations described in :ref:`Approach to Fitting` are provided here.  

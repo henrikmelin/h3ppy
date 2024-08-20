@@ -10,6 +10,7 @@ import sphinx_rtd_theme
 
 #sys.path.insert(0, os.path.join(os.path.split(__file__)[0], '..'))
 sys.path.insert(0, os.path.abspath('../h3ppy/'))
+#sys.path.insert(0, os.path.abspath('../'))
 
 # -- Project information -----------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#project-information
@@ -41,6 +42,7 @@ exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
 
 default_role = 'code'
 master_doc = 'index'
+source_suffix = [".rst", ".md"]
 
 intersphinx_mapping = {
     'numpy': ('https://numpy.org/doc/stable', None),

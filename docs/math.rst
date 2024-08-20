@@ -1,6 +1,6 @@
 .. _Approach to Fitting:
 
-Mathematical approach to fitting
+Mathematical Approach to Fitting
 ********************************
 
 Let :math:`F(a,b,c)` be a function with three free parameters :math:`a`, :math:`b`, and :math:`c`. We want 
