@@ -33,4 +33,4 @@ The `h3ppy` code has already been used in published scientific studies, characte
 
 # Acknowledgements
 
-HM was supported by the STFC James Webb Fellowship (ST/W001527/2) at Northumbria University, UK. 
+HM was supported by the STFC James Webb Fellowship (ST/W001527/2) at Northumbria University, UK.
