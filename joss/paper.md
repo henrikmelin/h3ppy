@@ -9,7 +9,7 @@ authors:
     orcid: 0000-0001-5971-2633
     affiliation: "1" 
 affiliations:
- - name: Department of Engineering and Environment, Northumbria University, UK
+ - name: Department of Mathematics, Physics, and Electrical Engineering, Northumbria University, Newcastle upon Tyne, UK
    index: 1
 date: 21 August 2024
 bibliography: paper.bib
@@ -26,7 +26,7 @@ bibliography: paper.bib
 
 For a given temperature and H$_3^+$ column density, the code calculates the radiance of each individual H$_3^+$ transition, then distributes these in wavelength-space by giving them Gaussian line shapes, the width of which is (principally) governed by the spectral resolving power of the spectrograph. The sum of all the individual Gaussian lines then make up the model spectrum. By making use of `numpy` array features (`numpy` is the only dependency), there are significant computational gains, making the code very fast. The fitting procedure uses a hard-coded least squares approach using partial derivatives of the spectral function, invoking Cramer's Rule [@Bevington:2003]. `h3ppy` implements the H$_3^+$ line list of @Neale:1996 and the partition function of @Miller:2010. 
 
-By making a `h3ppy` child class, the core functionality can also be used for other molecular species, and and example on how to use `h3ppy` to model and fit quadrupole molecular hydrogen spectra (H$_2$) is provided. 
+By making a `h3ppy` child class, the core functionality can also be used for other molecular species, and an example on how to use `h3ppy` to model and fit quadrupole molecular hydrogen spectra (H$_2$) is provided. 
 
 The `h3ppy` code has already been used in published scientific studies, characterising the ionosphere of Uranus [@Thomas:2023] and Jupiter [@Melin:2024]. 
 
