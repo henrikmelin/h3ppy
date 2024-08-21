@@ -1,3 +1,9 @@
+## 0.5
+
+Added lots of documentation and added to h3ppy.readthedocs.io
+Added detailed method documentation
+Split h3p and h2 into separate files to free __init__.py
+
 ## 0.4.3+
 Another attempt at fixing missing line lists...
 

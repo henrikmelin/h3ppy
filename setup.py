@@ -26,7 +26,7 @@ from setuptools import setup, find_packages
 
 setup(
     name             = 'h3ppy',
-    version          = '0.4.5',
+    version          = '0.5',
     author           = 'Henrik Melin',
     author_email     = 'h.melin@gmail.com',
     description      = 'Model and fit H3+ spectra',
@@ -51,7 +51,7 @@ A python package for modelling and fitting H<sub>3</sub><sup>+</sup> spectra
 pip3 install h3ppy
 ```
 
-Full [documentation on Github](https://github.com/henrikmelin/h3ppy).
+Full [documentation on Github](https://github.com/henrikmelin/h3ppy) and at [https://h3ppy.readthedocs.io/](https://h3ppy.readthedocs.io/).
     """,
     long_description_content_type="text/markdown",
     classifiers=[
