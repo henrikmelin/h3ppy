@@ -7,7 +7,6 @@ tags:
 authors:
   - name: Hernik Melin
     orcid: 0000-0001-5971-2633
-    equal-contrib: true
     affiliation: "1" 
 affiliations:
  - name: Department of Engineering and Environment, Northumbria University, UK
@@ -25,11 +24,11 @@ bibliography: paper.bib
 
 `h3ppy` seeks to simplify the process of analysing H$_3^+$ spectra by providing a standardised tool for the planetary science community. It is written in Python and installation is accessible via `pip`, which makes installing the package and maintainging it very straightforward. First-time users can generate a spectrum with only a few lines of code, whilst at the same time, the code provides more advanced control of the modelling and fitting process. 
 
-For a given temperature and H$_3^+$ density, the code calculates the radiance of each individual H$_3^+$ transition, then distributes these in wavelength-space by giving them Gaussian line-shapes, the width of which is (principally) governed by the spectral resolution of the spectrograph. The sum of all the individual Gaussian lines then make up the model spectrum. By making use of `numpy` array features, there are significant computational gains, making the code very fast. The fitting procedure uses a hard-coded least squares approach, and the only dependency is `numpy`. `h3ppy` implements the H$_3^+$ line list of @Neale:1996 and the partition function of @Miller:2013. 
+For a given temperature and H$_3^+$ density, the code calculates the radiance of each individual H$_3^+$ transition, then distributes these in wavelength-space by giving them Gaussian line-shapes, the width of which is (principally) governed by the spectral resolution of the spectrograph. The sum of all the individual Gaussian lines then make up the model spectrum. By making use of `numpy` array features, there are significant computational gains, making the code very fast. The fitting procedure uses a hard-coded least squares approach, and the only dependency is `numpy`. `h3ppy` implements the H$_3^+$ line list of @Neale:1996 and the partition function of @Miller:2010. 
 
 By making a `h3ppy` child class, the core functionality can also be used for other molecular species, and and example on how to use `h3ppy` to model and fit molecular hydrogen spectra (H$_2$) is provided. 
 
-The `h3ppy` code has already been used in published scientific studies, characterising the ionosphere of Uranus [@Thomas:2023] and Jupiter [Melin:2024]. 
+The `h3ppy` code has already been used in published scientific studies, characterising the ionosphere of Uranus [@Thomas:2023] and Jupiter [@Melin:2024]. 
 
 # Acknowledgements
 
