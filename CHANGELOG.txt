@@ -1,5 +1,4 @@
-## 0.5
-
+## 0.5.0
 Added lots of documentation and added to h3ppy.readthedocs.io
 Added detailed method documentation
 Split h3p and h2 into separate files to free __init__.py
