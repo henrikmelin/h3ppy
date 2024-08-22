@@ -32,16 +32,12 @@ setup(
     description      = 'Model and fit H3+ spectra',
     url              = 'https://github.com/henrikmelin/h3ppy',
     keywords         = 'infrared spectroscopy H3+ modelling',
-#    packages         = find_packages(),
+    packages         = find_packages(),
 
-    packages=find_packages(where="data"),
-    package_dir={"h3ppy": "data"},
+    package_dir={"h3ppy": ''},
     include_package_data=True, 
 
     install_requires = ['numpy'], 
-#    package_dir      = {"": "."},
-#    package_data     = {'h3ppy': ['h3ppy/data/h3p_line_list_neale_1996_subset.txt', 'h2_line_list_roueff_2019_subset.txt']},
- #   include_package_data = True,    
     long_description = """
 # h3ppy
 A python package for modelling and fitting H<sub>3</sub><sup>+</sup> spectra
