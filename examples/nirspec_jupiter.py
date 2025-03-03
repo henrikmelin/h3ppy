@@ -88,7 +88,7 @@ plt.savefig('../img/nirspec_jupiter_better.png')
 plt.show()
 plt.close()
 
-wave_new = hp3.get_new_wavelength()
+wave_new = hp3.get_rest_wavelength()
 
 
 
