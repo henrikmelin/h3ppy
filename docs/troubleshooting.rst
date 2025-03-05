@@ -10,7 +10,7 @@ This page is inteded to provide some support for common issues with `h3ppy`.
 Issues with modelling a spectrum
 --------------------------------
 
-* The :math:`H_3^+` line list of Neale et al, (1996) provides wavelength covrage between about 2 to 7 :math:`\mu m`, so if you generate a model outside
+* The :math:`\text{H}_3^+` line list of Neale et al, (1996) provides wavelength covrage between about 2 to 7 :math:`\mu m`, so if you generate a model outside
   of this range it will show nothing. 
 
 * Make sure all the required parameters are set to produce the expected results. Generally, this looks like: 
@@ -39,7 +39,7 @@ There are a number of reasons why this happens. The most common are:
 
 * The starting parameters you have provided (e.g. temperature and column density) are too far from the actual solution. 
   Consider changing them to more resonable values. 
-* The wavelength scale is wrong. This would mean that the :math:`H_3^+` are not in the place that `h3ppy` expects them to be. 
+* The wavelength scale is wrong. This would mean that the :math:`\text{H}_3^+` emssion lines are not in the place that `h3ppy` expects them to be. 
   The code expects the lines to be at rest wavelength, so remove any Doppler shift from the lines. Whilst `h3ppy` will attempt to fit a wavelength 
   shift to the observed spectrum, if the difference is too large, this will unlikely work, and the fit will fail. 
 * The line-width is wrong. This would mean that `h3ppy` will attempt to fit lines that are wider or narrower than the observed ones, which can cause trouble. 
@@ -78,7 +78,7 @@ to the observed spectrum. This is simply done by creating a model, before doing 
 Fitting a large number of spectra
 ---------------------------------
 
-In general, it is common to fit large numbers of :math:`H_3^+` spectra, rather than just a single one. The internal workings of `h3ppy` will
+In general, it is common to fit large numbers of :math:`\text{H}_3^+` spectra, rather than just a single one. The internal workings of `h3ppy` will
 retain the retreived parameters from the last fit, which can cause trouble if that previous fit failed. Therefore, it is commone practice to 
 use the `h3p.reset_params()` to initialise all parameters before a new fit takes place. 
 

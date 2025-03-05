@@ -83,7 +83,7 @@ Partial dervative of the line width
 -----------------------------------
 
 
-The line width, :math:`\sigma(\lambda)`, describes the width of the line so that the full width at half maximum (FWHM) a particular wavelength is FWHM = :math:`\sqrt{2\pi\sigma(\lambda)}`. The line width derivative is:
+The line width, :math:`\sigma(\lambda)`, describes the width of the line so that the full width at half maximum (FWHM) a particular wavelength is FWHM = :math:`2\sqrt{2\log(2)}\sigma(\lambda)`. The line width derivative is:
 
 .. math::
     \frac{\partial I}{\partial \sigma} = N \sum_{i=0}^{n_{lines}}\frac{I_{i}(T)}{\sigma_{i}\sqrt{2\pi}}\exp{\left(-\frac{(\lambda-(\lambda_i+s(\lambda)))^{2}}{2\sigma_{i}^{2}}\right)}\frac{(\lambda-(\lambda_i+s(\lambda)))^2}{2\sigma_{i}^{2}} \frac{(-1)}{\sigma^3} \frac{\partial \sigma(\lambda)}{\partial a_{i}}

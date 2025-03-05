@@ -70,12 +70,31 @@ Now the shift from the initial guesses is given by the following expressions:
 
 The matrices above are re-calculated until :math:`\Delta a`, :math:`\Delta b`, and :math:`\Delta c` are sufficiently small as to change the values :math:`a`, :math:`b`, and :math:`c` insignificantly.
 
-In the case of retrieving physical properties from an observed :math:`H_3^+` spectrum, the spectral function is given on the :ref:`Spectral Function` page. In general there are a handful of parameters that can be derived from fitting :math:`H_3^+` spectra: 
+
+
+In the case of retrieving physical properties from an observed :math:`\text{H}_3^+` spectrum, the spectral function is given on the :ref:`Spectral Function` page. In general there are a handful of parameters that can be derived from fitting :math:`\text{H}_3^+` spectra: 
 
 1. Temperature, :math:`T`
-2. Column integrated :math:`H_3^+` density, :math:`N`
+2. Column integrated :math:`\text{H}_3^+` density, :math:`N`
 3. Some background function, :math:`b(\lambda)`
 4. The width of the emission lines, :math:`\sigma(\lambda)`
 5. The offset from rest wavelengths, :math:`s(\lambda)`
 
 The last three of these can be expressed as constants or as polynomial functions of wavelength of some order. `h3ppy` will generate the matricies for any given number of parameters and perform the least squares minimisation to find the best fit. 
+
+Uncertainties
+-------------
+If an observed spectrum has :math:`N` paris of wavelegth and radiance values, then the standard deviation (:math:`\mu`) of a single dependent datum is given by: 
+
+.. math:: 
+    \mu = \pm \sqrt{\frac{S^\prime}{N - \nu}}
+
+where :math:`\nu` is the degrees of freedom of the fit and :math:`S^{\prime} = \sum_{i=0}^N{\eta_i^2}`, so that :math:`S^\prime \rightarrow S` as we iterate twoards convergence. 
+
+The formal uncertainty (:math:`\sigma`), or standard error, of a parameter (e.g., :math:`a`) is given by: 
+
+.. math::
+    \sigma_a = \frac{\mu}{\sqrt{\frac{|Z|}{|Z_{A,A}|}}}
+
+where :math:`|Z_{A,A}|` is the determinant of the :math:`\nu - 1` dimensional matrix formed by removing row :math:`A` and column :math:`A` from matrix :math:`Z`. This uncertainty is purely based on the pread of the data.
+
