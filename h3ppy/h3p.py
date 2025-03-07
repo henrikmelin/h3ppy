@@ -10,7 +10,7 @@ class h3p :
         The `set()`, `model()`, and `fit()` methods accepts the following inputs:
 
         * `wavelength`, `wave`, `w` - the wavelength scale on which to produce the model.  
-        * `data` - the observed H:math:`H_3^+` spectrum
+        * `data` - the observed :math:`H_3^+` spectrum
         * `temperature`, `T` - the intensity of the :math:`H_3^+` spectral lines are an exponential function of the temperature. Typical ranges for the ionosphere's of the giant planets are 400 (Saturn) to 1500 K (Jupiter). 
         * `density`, `N` - the column integrated :math:`H_3^+` density, this is the number of ions along the line of sight vector.
         * `sigma_n` - the nth polynomial constant of the spectral line width (sigma)
@@ -19,6 +19,7 @@ class h3p :
         * `nsigma` - the number of polynomial constant used for the sigma.
         * `noffset` - the number of polynomial constant used for the offset.
         * `nbackground` - the number of polynomial constant used for the background.
+        * `R` - the spectral resolving power of the instrument. This is converted in the code to a `sigma` parameter.
 
     """
     def __init__(self, line_list_file = '', **kwargs):
@@ -31,12 +32,12 @@ class h3p :
         else : self.line_list_file = line_list_file
 
         # Set up required parameters
-        self.startup()
+        self._startup()
 
         # Parse any potential input
-        self.parse_kwargs(kwargs)
+        self._parse_kwargs(kwargs)
 
-    def startup(self) : 
+    def _startup(self) : 
         """
             Perform a number of initialisations, define constants and default limits.
 
@@ -55,7 +56,7 @@ class h3p :
         self.h = 6.62607015e-34
 
         # Read the spectral information
-        self.read_line_list()
+        self._read_line_list()
 
         # This is the number of FWHM's before and after the line centre we'll
         # evaluate the intensity for. Purely for computational speedos.
@@ -84,7 +85,7 @@ class h3p :
         self._last_temperature = 0
         self._fit_sucess = False
 
-    def read_line_list(self) :
+    def _read_line_list(self) :
         """
             Read the line data from file into a structured array. 
 
@@ -102,7 +103,7 @@ class h3p :
         types = {'names' : ( 'Ju', 'wu', 'wl', 'EA', 'gw' ), 'formats' : ('f', 'f', 'f', 'f', 'f') }
         self.line_data = np.loadtxt(self.line_list_file, skiprows=1, dtype = types)
 
-    def poly_fn(self, pname, nbr) :
+    def _poly_fn(self, pname, nbr) :
         """
             Evaluate an polynomial function from the parameters in `self.var`.
     
@@ -129,7 +130,7 @@ class h3p :
                 The intensity of each individual line. 
         """
         
-        self.parse_kwargs(kwargs)
+        self._parse_kwargs(kwargs)
 
         # Don't recalculate if we've just done it
         if (self._last_temperature == self.vars['temperature']) :
@@ -161,16 +162,16 @@ class h3p :
                 A spectrum of units of spectral radiance (:math:`W m^{-2} sr^{-1} \\mu m^{-1}`). 
         """
 
-        self.parse_kwargs(kwargs)
+        self._parse_kwargs(kwargs)
 
         line_intensity = self.calculate_line_intensities()
 
-        self.background = self.poly_fn('background', self.nbackground)
+        self.background = self._poly_fn('background', self.nbackground)
 
-        return self.render_spectrum(line_intensity) * self.vars['density'] + self.background
+        return self._render_spectrum(line_intensity) * self.vars['density'] + self.background
 
     # Generate the spectrum
-    def render_spectrum(self, line_intensity, extra_fn_multiply = '', process_fn = '', **kwargs) :
+    def _render_spectrum(self, line_intensity, extra_fn_multiply = '', process_fn = '', **kwargs) :
         """
             Generate a model spectrum from the calculated line intensities. 
 
@@ -181,13 +182,13 @@ class h3p :
             Returns:
                 The spectrum of :math:`H_3^+` at a particurlar temperature and wavelength range for one molecule. 
         """
-        self.parse_kwargs(kwargs)
+        self._parse_kwargs(kwargs)
 
         spectrum   = np.zeros(len(self.wavelength), dtype = self.dtype)
 
-        self.sigma      = self.poly_fn('sigma', self.nsigma)
-        self.offset     = self.poly_fn('offset', self.noffset)
-        self.background = self.poly_fn('background', self.nbackground)
+        self.sigma      = self._poly_fn('sigma', self.nsigma)
+        self.offset     = self._poly_fn('offset', self.noffset)
+        self.background = self._poly_fn('background', self.nbackground)
 
         # Calculate the contribution for all lines in the line-list at each wavelength
         for i, w in enumerate(self.wavelength) : 
@@ -203,7 +204,7 @@ class h3p :
 
         return spectrum
 
-    def Q_constants(self) :
+    def _Q_constants(self) :
         '''
             The partition function constants from Miller et al. (2013)
 
@@ -228,10 +229,10 @@ class h3p :
             Calculate the :math:`H_3^+` partition function, :math:`Q(T)`. 
         
             Returns:
-                The evaluated partition function at a particular temperature. 
+                The evaluated partition function (Miller et al., 2013) at a particular temperature. 
         """
-        self.parse_kwargs(kwargs)
-        pconst = self.Q_constants()
+        self._parse_kwargs(kwargs)
+        pconst = self._Q_constants()
 
         Q = 0.0
         for i, const in enumerate(pconst) :
@@ -239,22 +240,22 @@ class h3p :
 
         return Q;
 
-    def dQdT(self, **kwargs) :
+    def _dQdT(self, **kwargs) :
         """
             The temperature derivative of the partition function. See :ref:`Partial Derivatives` for more details.
 
             Returns: 
                 The temperature derivative of the partition function.         
         """
-        self.parse_kwargs(kwargs)
+        self._parse_kwargs(kwargs)
 
         vardQdT = 0.0
-        for i, const in enumerate(self.Q_constants()) :
+        for i, const in enumerate(self._Q_constants()) :
             if (i == 0) : continue
             vardQdT += float(i) * const * np.power(self.vars['temperature'], float(i - 1))
         return vardQdT
 
-    def dIdT(self) :
+    def _dIdT(self) :
         """
             The temperature derivative of the spectral function. See :ref:`Partial Derivatives` for more details.
 
@@ -265,25 +266,25 @@ class h3p :
 
         const1 =  self.h *  self.c * 100 / ( np.power(self.vars['temperature'], 2) *  self.k )
         Q      = self.Q()
-        dQdT   = self.dQdT()
+        dQdT   = self._dQdT()
 
         # Caulcate the derivative for each transtion in the line-list
         dIidT  = line_intensity * const1 * self.line_data['wu']
         dIidT -= line_intensity * dQdT / Q
 
-        return self.render_spectrum(dIidT) * self.vars['density']
+        return self._render_spectrum(dIidT) * self.vars['density']
 
-    def dIdo(self, index) :
+    def _dIdo(self, index) :
         """
          The wavelength polynomial constants derivative of the spectral function I. See :ref:`Partial Derivatives` for more details.
         """
         line_intensity = self.calculate_line_intensities()
 
         self.offset_index = index
-        return self.render_spectrum(line_intensity, process_fn = 'dIdo_process') * self.vars['density']
+        return self._render_spectrum(line_intensity, process_fn = '_dIdo_process') * self.vars['density']
 
     
-    def dIdo_process(self, i) :
+    def _dIdo_process(self, i) :
         """
             Alter the spectral function for `dIdo()`
         """
@@ -292,16 +293,16 @@ class h3p :
 
         return self.line_contributions * numerator_deriv / (2.0 * np.power(self.sigma[i], 2)) * dIdc
 
-    def dIds(self, index) :
+    def _dIds(self, index) :
         """
             The line width derivative of the spectral function I. See :ref:`Partial Derivatives` for more details.
         """
         line_intensity = self.calculate_line_intensities()
 
         self.sigma_index = index
-        return  self.render_spectrum(line_intensity, process_fn = 'dIds_process') * self.vars['density']
+        return  self._render_spectrum(line_intensity, process_fn = '_dIds_process') * self.vars['density']
 
-    def dIds_process(self, i) :
+    def _dIds_process(self, i) :
         """
             Alter the spectral function for dIds()
         """
@@ -317,20 +318,31 @@ class h3p :
 
         return ( self.line_contributions * dIds - 1.0 * self.line_contributions / self.sigma[i]) * dsdc
 
-    def dIdb(self, index) :
+    def _dIdb(self, index) :
         """
         The derivative of the background polynomial constants. See :ref:`Partial Derivatives` for more details.
         """
         return np.power(self.wavelength, index)
 
-    def dIdN(self) :
+    def _dIdN(self) :
         """
             The partial derivative of the column density. See :ref:`Partial Derivatives` for more details.
         """
         line_intensity = self.calculate_line_intensities()
-        return self.render_spectrum(line_intensity)
+        return self._render_spectrum(line_intensity)
 
-    def set(self, **kwargs) :
+    def set(
+            self,
+            temperature: float = None,
+            T: float = None,
+            density: float = None,
+            N: float = None,
+            wavelength: np.ndarray = None,
+            wave: np.ndarray = None,
+            w: np.ndarray = None,
+            R: float = None,
+            **kwargs
+        ) :
         """
         Use set() to set the model parameters that you require.
 
@@ -340,18 +352,30 @@ class h3p :
             h3p.set(temperature = 900, density = 1e15)
 
         Args:
-                temperature: The temperature (in :math:`K`).
-                density: The columnn densty (in :math:`m^{-2}`).
-                wavelength: The wavelength scale (in :math:`\\mu m`).
+                temperature (float): The temperature (in :math:`K`).
+                T (float) : Alias for temperature.
+                density (float): The column integrated density (in :math:`m^{-2}`).
+                N (float) : Alias for density. 
+                wavelength (np.ndarray) : The wavelength scale (in :math:`\\mu m`).
+                wave (np.ndarray): Alias for wavelength. 
+                w (np.ndarray): Alias for wavelength.  
                 R: The spectral resolution (FWHM)
 
-        .. hint:: 
-            There are short-hand variable names for temperature (T), density (N), and wavelength (wave, w).         
-
         """
-        self.parse_kwargs(kwargs)
+        parameters = {
+            'temperature': temperature,
+            'T': T,
+            'density': density,
+            'N': N,
+            'wavelength': wavelength,
+            'wave': wave,
+            'w': wave,
+            'R': R
+        }
 
-    def modify_vars(self, nnew, nold, var) :
+        self._parse_kwargs(parameters | kwargs)
+
+    def _modify_vars(self, nnew, nold, var) :
         """
             Change the number of polynomial terms. For example, if you want to use a 2nd order polynomial
             to describe the background rather than a constant, then the number of terms changes, which is
@@ -371,7 +395,7 @@ class h3p :
                 self.vars[key] = 0.0
 
     # Parse the keyword input
-    def parse_kwargs(self, kwargs) :
+    def _parse_kwargs(self, kwargs) :
         """
             Parse the required model parameters. See :ref:`Usage` for details. 
         
@@ -381,15 +405,15 @@ class h3p :
         for key, value in kwargs.items() :
 
             if (key == 'nsigma') :
-                self.modify_vars(value, self.nsigma, 'sigma')
+                self._modify_vars(value, self.nsigma, 'sigma')
                 self.nsigma = value
 
             elif (key == 'noffset') :
-                self.modify_vars(value, self.noffset, 'offset')
+                self._modify_vars(value, self.noffset, 'offset')
                 self.noffset = value
 
             elif (key == 'nbackground') :
-                self.modify_vars(value, self.nbackground, 'background')
+                self._modify_vars(value, self.nbackground, 'background')
                 self.nbackground = value
 
         # Now set the spectrum parameters
@@ -397,6 +421,8 @@ class h3p :
         # ok_keys.append('nsigma', 'noffset', 'nbackground')
 
         for key, value in kwargs.items() :
+
+            if (value is None) : continue
 
             # Allow no dash suffix for zero order polynomials
             if (key == 'sigma') : key = 'sigma_0'
@@ -445,12 +471,12 @@ class h3p :
                 The best fit model spectrum to the data in units of spectral radiance (:math:`W m^{-2} sr^{-1} \\mu m^{-1}`). 
         """
 
-        self.parse_kwargs(kwargs)
+        self._parse_kwargs(kwargs)
 
         # Sanity check the inputs
-        if (self.check_inputs() == False) : return False
+        if (self._check_inputs() == False) : return False
 
-        function_map = {'temperature' : 'dIdT()', 'density' : 'dIdN()', 'offset_n' : 'dIdo(n)', 'sigma_n' : 'dIds(n)', 'background_n' : 'dIdb(n)'}
+        function_map = {'temperature' : '_dIdT()', 'density' : '_dIdN()', 'offset_n' : '_dIdo(n)', 'sigma_n' : '_dIds(n)', 'background_n' : '_dIdb(n)'}
 
         # The default set of params to fit
         if (params_to_fit == '') :
@@ -515,7 +541,7 @@ class h3p :
                 if (self.vars['temperature'] < 100) : msg = 'Temperature is less than zero'
                 if (self.vars['temperature'] > 5000) : msg = 'Temperature is larger this upper boundary of h3ppy (5000 K)'
                 if (self.vars['density'] < 0) : msg = 'Density is less than zero'
-                self.sigma = self.poly_fn('sigma', self.nsigma)
+                self.sigma = self._poly_fn('sigma', self.nsigma)
   #              if (np.mean(self.sigma) < 0) : msg = 'Line width is negative'
                 if (msg != '') :
                     self._fit_sucess = False
@@ -590,7 +616,7 @@ class h3p :
         '''
         Calculate the total emitted energy by H3+ as given by Miller et al., (2013)
         '''
-        self.parse_kwargs(kwargs)
+        self._parse_kwargs(kwargs)
 
         if (self.vars['temperature'] >= 30 and self.vars['temperature'] < 300) :
             coeffs = [-81.9599, 0.886768, -0.0264611, 0.000462693, -4.70108e-6, 2.84979e-8,
@@ -698,9 +724,9 @@ class h3p :
                 The modelled spectrum with the new estimated column denisty. 
         
         """
-        self.parse_kwargs(kwargs)
+        self._parse_kwargs(kwargs)
 
-        if (self.check_inputs() == False) : return False
+        if (self._check_inputs() == False) : return False
 
         model = self.model()
         if (np.max(model) == 0) :
@@ -719,10 +745,16 @@ class h3p :
 
 
     def guess_offset(self, verbose = True, **kwargs) :
+        """
+            Based on the peak value of the provided data and the initial guess model, calculate the wavelength shift. 
 
-        self.parse_kwargs(kwargs)
+            Returns:
+                The modelled spectrum with the wavelength offset applied. 
+        
+        """
+        self._parse_kwargs(kwargs)
 
-        if (self.check_inputs() == False) : return False
+        if (self._check_inputs() == False) : return False
 
         # Generate a H3+ model and check that it is nonzero.
         model = self.model(offset = 0)
@@ -752,7 +784,7 @@ class h3p :
 
         return self.model()
 
-    def check_inputs(self) :
+    def _check_inputs(self) :
         """
             Perform a sanity check to see if the inputs are compatible with eachother. 
 
@@ -779,7 +811,7 @@ class h3p :
             The offset wavelength scale where the :math:`H_3^+` lines are at rest (i.e. lab) wavelenghts.
 
         '''
-        self.offset = self.poly_fn('offset', self.noffset)
+        self.offset = self._poly_fn('offset', self.noffset)
         return self.wavelength - self.offset
 
     def add_noise(self, snr = 0.0, absolute = 0.0, percent = 0.0) :

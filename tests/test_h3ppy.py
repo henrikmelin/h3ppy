@@ -39,7 +39,7 @@ class test_h3ppy(unittest.TestCase) :
         self.assertAlmostEqual(self.h3p.Q(T = 500), 80.58039000000002)
 
     def test_dQdT(self) : 
-        self.assertAlmostEqual(self.h3p.dQdT(T = 500), 0.24334719375)
+        self.assertAlmostEqual(self.h3p._dQdT(T = 500), 0.24334719375)
 
     def test_parse_kwargs(self) : 
         self.h3p.set(T = 400)
@@ -62,4 +62,4 @@ class test_h3ppy(unittest.TestCase) :
 
     def test_check_inputs(self) : 
         self.h3p.set(data = np.random.rand(self.h3p.wavelength.shape[0]))
-        self.assertTrue(self.h3p.check_inputs())
+        self.assertTrue(self.h3p._check_inputs())

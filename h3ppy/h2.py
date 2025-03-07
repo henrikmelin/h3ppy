@@ -29,12 +29,12 @@ class h2(h3p) :
         else : self.line_list_file = line_list_file
 
         # Set up the required parameters
-        self.startup()
+        self._startup()
 
         # Parse any potential input
-        self.parse_kwargs(kwargs)
+        self._parse_kwargs(kwargs)
 
-    def Q_constants(self) :
+    def _Q_constants(self) :
         """
             Simple polynomial fit to the Roueff 2019 partiation function on ExoMol
 
@@ -50,21 +50,21 @@ class h2(h3p) :
             Returns:
                 The evaluated :math:`H_2` partition function.
         """
-        self.parse_kwargs(kwargs)
+        self._parse_kwargs(kwargs)
 
-        consts = self.Q_constants()         
+        consts = self._Q_constants()         
         Qfn    = np.poly1d(consts)
 
         return Qfn(self.vars['temperature'])
 
-    def dQdT(self, **kwargs) : 	
+    def _dQdT(self, **kwargs) : 	
         """
             Evaluate the temperature derivative of the partition function. 
 
             Returns: 
                 Temperature derivative of the partition function at a particurlar temmperature. 
         """
-        self.parse_kwargs(kwargs)
+        self._parse_kwargs(kwargs)
         consts = self.Q_constants() 
 
         Qfn    = np.poly1d(consts)
@@ -79,7 +79,7 @@ class h2(h3p) :
             Returns: 
                 The total emission of :math:`H_2`.
         """
-        self.parse_kwargs(kwargs)
+        self._parse_kwargs(kwargs)
 
         # Return the wavelength integrated radiance
         return np.sum(self.calculate_line_intensities()) * self.vars['density']
