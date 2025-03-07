@@ -1,3 +1,7 @@
+## 0.6.0
+Changed based on the JOSS review process
+See: https://github.com/openjournals/joss-reviews/issues/7536
+
 ## 0.5.0
 Added lots of documentation and added to h3ppy.readthedocs.io
 Added detailed method documentation

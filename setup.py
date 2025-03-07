@@ -26,7 +26,7 @@ from setuptools import setup, find_packages
 
 setup(
     name             = 'h3ppy',
-    version          = '0.5.2',
+    version          = '0.6.0',
     author           = 'Henrik Melin',
     author_email     = 'h.melin@gmail.com',
     description      = 'Model and fit H3+ spectra',
@@ -34,7 +34,6 @@ setup(
     keywords         = 'infrared spectroscopy H3+ modelling',
     packages         = find_packages(),
 
-    package_dir={"h3ppy": ''},
     include_package_data=True, 
 
     install_requires = ['numpy'], 
