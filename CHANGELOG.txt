@@ -1,3 +1,6 @@
+## 0.6.1
+Created version to archive to Zenodo to link other the JOSS article. 
+
 ## 0.6.0
 Changed based on the JOSS review process
 See: https://github.com/openjournals/joss-reviews/issues/7536

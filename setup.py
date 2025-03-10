@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 
 """
-Copyright (c) 2023 Henrik Melin 
+Copyright (c) 2025 Henrik Melin 
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of
 this software and associated documentation files (the "Software"), to deal in
@@ -26,7 +26,7 @@ from setuptools import setup, find_packages
 
 setup(
     name             = 'h3ppy',
-    version          = '0.6.0',
+    version          = '0.6.1',
     author           = 'Henrik Melin',
     author_email     = 'h.melin@gmail.com',
     description      = 'Model and fit H3+ spectra',

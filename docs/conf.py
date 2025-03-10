@@ -18,8 +18,8 @@ sys.path.insert(0, os.path.abspath('../'))
 project = 'h3ppy'
 copyright = f'2020–{datetime.datetime.now():%Y}, Henrik Melin'
 author = 'Henrik Melin'
-version = '0.6.0'
-release = '0.6.0'
+version = '0.6.1'
+release = '0.6.1'
 language = 'en'
 
 # -- General configuration ---------------------------------------------------
