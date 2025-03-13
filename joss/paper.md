@@ -5,7 +5,7 @@ tags:
   - Astronomy
   - Giant Planets
 authors:
-  - name: Hernik Melin
+  - name: Henrik Melin
     orcid: 0000-0001-5971-2633
     affiliation: "1" 
 affiliations:
