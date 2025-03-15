@@ -142,7 +142,7 @@ types = {'names' : ( 'w', 'i' ), 'formats' : ('f', 'f') }
 dat = np.loadtxt(data_file, skiprows=4, dtype = types)
 
 # Need to convert the instrument FOV to units of sterradian
-# The pixel width is 3.1 arcsec with a slit widht of 3.1 arcsec
+# The pixel width is 3.1 arcsec with a slit width of 3.1 arcsec
 # Note - there are 4.2545e10 arceconds in a sterradian
 spectrum = dat['i'] * 4.2545e10 / (3.1 * 3.1)
 wave = dat['w']
@@ -150,7 +150,7 @@ wave = dat['w']
 # Make our h3ppy object :-) 
 h3p = h3ppy.h3p()
 
-# Set the wavelength and data, and use the spectral resulution to input the 
+# Set the wavelength and data, and use the spectral resolution to input the 
 # expected line width
 h3p.set(wavelength = wave, data = spectrum, R = 1300)
 
@@ -243,7 +243,7 @@ Which produces this spectrum:
 <img src="img/nirspec_jupiter_data.png">
 </p>
 
-Since we are operating at a moderately high spectral resolution, I'm going to sub-divide the data, focusing on the individual spectral lines. This will not adversely affect the fit, since it is the relative intesity of the H<sub>3</sub><sup>+</sup> spectral lines that determine the temperature and the density. By zooming into the plot above, I determine the approximate wavelength of the group of lines.  The code below will reduce the wavelength range to focus only on the relevant H<sub>3</sub><sup>+</sup> line regions, and then fit the resulting spectrum. 
+Since we are operating at a moderately high spectral resolution, I'm going to sub-divide the data, focusing on the individual spectral lines. This will not adversely affect the fit, since it is the relative intensity of the H<sub>3</sub><sup>+</sup> spectral lines that determine the temperature and the density. By zooming into the plot above, I determine the approximate wavelength of the group of lines.  The code below will reduce the wavelength range to focus only on the relevant H<sub>3</sub><sup>+</sup> line regions, and then fit the resulting spectrum. 
 
 ```python
 # This function sub-divides data centered on a list of wavelengths
@@ -255,7 +255,7 @@ def subdivide(wave, spec, middles, width = 20) :
             ret.append(spec[i])
     return np.array(ret)
     
-# The H3+ line centeres contained withing this spectral band
+# The H3+ line centers contained within this spectral band
 centers = [3.953, 3.971, 3.986, 3.9945]
 cpos = np.arange(4) * 41 + 20
 
